@@ -1,10 +1,3 @@
-"""
-features.py
------------
-Engineers all 55+ predictive features from the master dataset.
-Uses your real CSV data: Nifty OHLCV + VIX + PCR + FII + BankNifty + SP500.
-"""
-
 import numpy as np
 import pandas as pd
 
@@ -14,7 +7,7 @@ def engineer_all_features(df: pd.DataFrame, dropna: bool = True) -> pd.DataFrame
     Input:  master DataFrame with columns: Open, High, Low, Close, Volume,
             VIX (optional), PCR (optional), FII_Net (optional),
             BankNifty_Return (optional), SP500_Return (optional)
-    Output: DataFrame with 55+ features + 'target' column (1 = next day UP)
+    Output: DataFrame with 55+ features + 'target' columns (multi-horizon)
     """
     f = df.copy()
 
@@ -176,13 +169,25 @@ def engineer_all_features(df: pd.DataFrame, dropna: bool = True) -> pd.DataFrame
         if "VIX" in f.columns:
             f[f"vix_lag_{lag}"] = f["VIX"].shift(lag)
 
-    # ── Target: 1 if next day Close > today Close ────────────────────────────
-    f["target"] = (f["Close"].shift(-1) > f["Close"]).astype(int)
+    # ── Targets: multi-horizon (1D default + 3/5/7/14/21/30 day) ────────────
+    f["target"]     = (f["Close"].shift(-1)  > f["Close"]).astype(int)
+    f["target_3d"]  = (f["Close"].shift(-3)  > f["Close"]).astype(int)
+    f["target_5d"]  = (f["Close"].shift(-5)  > f["Close"]).astype(int)
+    f["target_7d"]  = (f["Close"].shift(-7)  > f["Close"]).astype(int)
+    f["target_14d"] = (f["Close"].shift(-14) > f["Close"]).astype(int)
+    f["target_21d"] = (f["Close"].shift(-21) > f["Close"]).astype(int)
+    f["target_30d"] = (f["Close"].shift(-30) > f["Close"]).astype(int)
+
+    TARGET_COLS = ["target","target_3d","target_5d","target_7d",
+                   "target_14d","target_21d","target_30d"]
 
     if dropna:
-        return f.dropna()
+        # Drop rows where ANY of the target columns used are NaN
+        # To avoid dropping too much recent data, we'll only drop if ALL are NaN
+        # Wait, the user's implementation:
+        present = [c for c in TARGET_COLS if c in f.columns]
+        return f.dropna(subset=present)
     else:
-        # In live mode, ffill to ensure we have values for the latest row
         return f.ffill()
 
 
@@ -191,6 +196,9 @@ def get_feature_columns(df: pd.DataFrame) -> list:
     exclude = {"Open", "High", "Low", "Close", "Volume", "VIX",
                "PCR", "FII_Net", "SP500_Return", "BankNifty_Return",
                "VIX_Term_Spread", "target"}
+    # Also exclude all multi-horizon targets
+    targets = {c for c in df.columns if c.startswith("target")}
+    exclude = exclude.union(targets)
     return [c for c in df.columns if c not in exclude]
 
 

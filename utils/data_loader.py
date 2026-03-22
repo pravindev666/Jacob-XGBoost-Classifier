@@ -1,21 +1,3 @@
-"""
-data_loader.py
---------------
-Loads and merges all your real CSV datasets from the data/ folder.
-
-Your files (from the screenshot):
-  data/nifty_daily.csv          — Nifty daily OHLCV
-  data/nifty_15m_2001_to_now.csv — Nifty 15-minute OHLCV
-  data/vix_daily.csv            — India VIX daily
-  data/INDIAVIX_15minute_2001_now.csv — VIX 15-min
-  data/bank_nifty_daily.csv     — Bank Nifty daily
-  data/sp500_daily.csv          — S&P 500 daily (global context)
-  data/fii_dii_daily.csv        — FII/DII institutional flow
-  data/events.csv               — Market events / holidays
-  data/pcr_daily.csv            — Put-Call Ratio daily
-  data/vix_term_daily.csv       — VIX term structure
-"""
-
 import os
 import pandas as pd
 import numpy as np
@@ -279,4 +261,3 @@ def get_data_status() -> dict:
             "rows": rows
         }
     return status
-

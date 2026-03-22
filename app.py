@@ -146,6 +146,7 @@ with st.sidebar:
         "Navigate",
         [
             "🏠  Dashboard",
+            "🔭  Multi-Horizon",
             "📂  Data Explorer",
             "🎯  Signal Engine",
             "📊  P&L Simulator",
@@ -163,6 +164,9 @@ with st.sidebar:
 if "🏠" in page:
     from pages import dashboard
     dashboard.render()
+elif "🔭" in page:
+    from pages import multi_horizon
+    multi_horizon.render()
 elif "📂" in page:
     from pages import data_explorer
     data_explorer.render()
