@@ -315,7 +315,7 @@ for hz, model in models.items():
         with col1:
             fig = go.Figure()
             fig.add_trace(go.Bar(name="Train", x=hz_labels, y=train_accs,
-                                 marker_color=[c + "88" for c in colors]))
+                                 marker_color=colors, opacity=0.5))
             fig.add_trace(go.Bar(name="Test (live proxy)", x=hz_labels, y=test_accs,
                                  marker_color=colors,
                                  text=[f"{a:.1f}%" for a in test_accs],
