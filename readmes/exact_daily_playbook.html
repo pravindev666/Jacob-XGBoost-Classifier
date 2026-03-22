@@ -1,0 +1,220 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.w { font-family: var(--font-sans); color: var(--color-text-primary); padding: 1rem 0; }
+.phase { margin-bottom: 20px; }
+.phase-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--color-border-tertiary); }
+.phase-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+.phase-title { font-size: 14px; font-weight: 500; }
+.phase-sub { font-size: 12px; color: var(--color-text-secondary); }
+.step { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+.step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--color-background-secondary); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; margin-top: 1px; color: var(--color-text-secondary); }
+.step-content { flex: 1; }
+.step-action { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
+.step-detail { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; }
+.btn-mock { display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 500; margin: 3px 2px; }
+.btn-red { background: #E24B4A; color: white; }
+.btn-blue { background: #378ADD; color: white; }
+.btn-green { background: #639922; color: white; }
+.chip { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+.chip-green { background: #EAF3DE; color: #27500A; }
+.chip-red { background: #FCEBEB; color: #A32D2D; }
+.chip-amber { background: #FAEEDA; color: #633806; }
+.chip-blue { background: #E6F1FB; color: #185FA5; }
+.decision { border-radius: 10px; padding: 12px 16px; margin: 8px 0; border: 1px solid; }
+.dec-go { background: #EAF3DE; border-color: #97C459; }
+.dec-no { background: #FCEBEB; border-color: #F09595; }
+.dec-wait { background: #FAEEDA; border-color: #EF9F27; }
+.dec-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.dec-body { font-size: 12px; line-height: 1.6; }
+.divider { height: 1px; background: var(--color-border-tertiary); margin: 16px 0; }
+</style>
+
+<div class="w">
+
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-dot" style="background:#EAF3DE;color:#27500A;">A</div>
+    <div><div class="phase-title">ONE TIME ONLY — Train the model (done by you already!)</div>
+    <div class="phase-sub">You only do this once, then monthly. Your model is trained.</div></div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <div class="step-action">Go to Model Builder page</div>
+      <div class="step-detail">Click in left sidebar. You see 4 tabs: Feature Engineering · Train Model · Results & Importance · Validation</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <div class="step-action">Set these exact settings (your screenshot already shows good ones)</div>
+      <div class="step-detail">
+        Train until year: <b>2021</b> &nbsp;|&nbsp; Validate until: <b>2024</b><br>
+        n_estimators: <b>500</b> &nbsp;|&nbsp; max_depth: <b>3</b> &nbsp;|&nbsp; learning_rate: <b>0.01</b> &nbsp;|&nbsp; subsample: <b>0.80</b>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <div class="step-action">Click <span class="btn-mock btn-red">🚀 Load Data & Train XGBoost</span></div>
+      <div class="step-detail">Wait ~30 seconds. Progress bar fills. You'll see Train: 1710 | Val: 736 | Test: 277</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <div class="step-action">Check the 3 accuracy numbers that appear</div>
+      <div class="step-detail">
+        Train ~66% ✅ · Val ~58% ✅ · Test 56% ✅ → You already got this! <span class="chip chip-green">Model ready</span><br>
+        If Test is below 55% → reduce max_depth to 3, retrain<br>
+        If Train-Test gap > 15% → reduce n_estimators to 200, retrain
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <div class="step-action">Go to Results & Importance tab — check Today's Model Signal box</div>
+      <div class="step-detail">This shows today's probability and confidence. Your screenshot shows: DOWN 49.7% · Confidence 1% → NO TRADE today. Correct.</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-dot" style="background:#E6F1FB;color:#185FA5;">B</div>
+    <div><div class="phase-title">EVERY DAY — Your 5-minute daily routine (after 3:30 PM)</div>
+    <div class="phase-sub">Do this Monday to Friday after market closes.</div></div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <div class="step-action">Open the dashboard. Look at the TOP BAR first</div>
+      <div class="step-detail">Read: VIX number → regime → what strategy is allowed today<br>
+      Your screenshot: VIX 22.8 → <span class="chip chip-amber">HIGH regime</span> → Credit spreads only, no option buying</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <div class="step-action">Look at the big RED/GREEN/AMBER signal bar at the top of Dashboard</div>
+      <div class="step-detail">
+        <span class="chip chip-green">Green bar</span> = Trade signal active (Buy CE, Buy PE, or Spread)<br>
+        <span class="chip chip-red">Red bar</span> = No Trade. Stop here. Do nothing today.<br>
+        <span class="chip chip-amber">Amber bar</span> = Credit spread suggested<br><br>
+        Your today: Red bar → "No Trade — Confidence Too Low" → <b>Stop. Do nothing.</b>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <div class="step-action">If signal is active → go to Signal Engine page for exact trade details</div>
+      <div class="step-detail">Signal Engine shows: exact strikes, max profit, max loss, breakeven, payoff diagram. All calculated for you.</div>
+    </div>
+  </div>
+
+  <div class="decision dec-no" style="margin:12px 0;">
+    <div class="dec-title" style="color:#A32D2D;">TODAY (21 Mar 2026) — DO NOTHING</div>
+    <div class="dec-body" style="color:#791F1F;">Confidence 1% · VIX 22.8 HIGH · RSI oversold · FII selling heavily. The model has no edge today. Come back tomorrow after 3:30 PM.</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-dot" style="background:#FAEEDA;color:#633806;">C</div>
+    <div><div class="phase-title">WHEN SIGNAL IS ACTIVE — How to actually place the trade</div>
+    <div class="phase-sub">This is what you do on a day when confidence is above 55%.</div></div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <div class="step-action">Read the signal bar. Example: "Bull Put Spread — Execute"</div>
+      <div class="step-detail">Note down: Strategy · Short strike · Long strike · Net credit · Max loss · Breakeven</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <div class="step-action">Open Zerodha Kite → F&O → NIFTY → Options Chain</div>
+      <div class="step-detail">Set expiry to current week (Thursday expiry). Find the strikes shown in the dashboard.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <div class="step-action">For Bull Put Spread: Place TWO orders simultaneously</div>
+      <div class="step-detail">
+        Order 1: <b>SELL</b> the short strike PE (e.g. 23700 PE) — Product: MIS or NRML — Qty: 1 lot (50 units)<br>
+        Order 2: <b>BUY</b> the long strike PE (e.g. 23500 PE) — same expiry — Qty: 1 lot<br>
+        Net credit = premium received − premium paid = your max profit
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <div class="step-action">Immediately log it in Trade Journal page</div>
+      <div class="step-detail">Fill: Date, Strategy, Confidence %, VIX at entry, Strikes, Lots, Premium collected. Click Save Trade.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <div class="step-action">Set ONE reminder on your phone</div>
+      <div class="step-detail">"Check Nifty spread P&L" — for every day until expiry. When P&L hits 50% of max profit → exit.</div>
+    </div>
+  </div>
+
+  <div class="decision dec-go">
+    <div class="dec-title" style="color:#27500A;">Exit rules — memorise these</div>
+    <div class="dec-body" style="color:#3B6D11;">
+      <b>Credit spreads:</b> Exit when P&L = 50% of max profit. OR hold to expiry if comfortable.<br>
+      <b>Option buys:</b> Exit when premium doubles (+50%). Hard stop when premium halves (-50%).<br>
+      <b>Never:</b> Add more to a losing position. Ever.
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="phase">
+  <div class="phase-header">
+    <div class="phase-dot" style="background:#E1F5EE;color:#0F6E56;">D</div>
+    <div><div class="phase-title">MONTHLY — Retrain and review</div>
+    <div class="phase-sub">Takes 5 minutes. Do this first of every month.</div></div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <div class="step-action">Go to Trade Journal → check win rate</div>
+      <div class="step-detail">If win rate > 55% → model working. If below 50% for 2 months → retrain model.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <div class="step-action">Go to Model Builder → click Train again (same settings)</div>
+      <div class="step-detail">This includes new month's data automatically. The model learns from recent patterns too.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <div class="step-action">Answer the 6 review questions in Trade Journal → Monthly Review section</div>
+      <div class="step-detail">Did I follow all rules? Which strategy performed best? What can I improve?</div>
+    </div>
+  </div>
+</div>
+
+</div>

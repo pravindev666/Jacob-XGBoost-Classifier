@@ -74,6 +74,15 @@ def render():
     # Defaults if missing
     latest_nifty_price = int(nifty_df.iloc[-1]['Close']) if not nifty_df.empty else 23125
     latest_vix_val = float(vix_df.iloc[-1]['VIX']) if not vix_df.empty else 17.8
+    
+    # Force LIVE VIX if possible
+    try:
+        import yfinance as yf
+        live_vix = yf.Ticker("^INDIAVIX").fast_info.last_price
+        if pd.notna(live_vix) and live_vix > 0:
+            latest_vix_val = float(live_vix)
+    except Exception:
+        pass
 
     # Safety for PCR
     last_pcr = 1.0
@@ -118,10 +127,9 @@ def render():
     direction = prediction["direction"] if has_model else "UP"
     model_acc = st.session_state.get("test_acc", 0.614)
 
-    # Sidebar Simulation Overrides
-    st.sidebar.markdown("**LIVE PARAMETERS**")
-    vix_val = st.sidebar.slider("India VIX (Simulate)", 10.0, 40.0, latest_vix_val)
-    nifty_val = st.sidebar.number_input("Nifty Spot (Simulate)", value=latest_nifty_price)
+    # Remove Simulation overrides to enforce LIVE data
+    vix_val = latest_vix_val
+    nifty_val = latest_nifty_price
 
     # VIX regime label
     if vix_val < 15:

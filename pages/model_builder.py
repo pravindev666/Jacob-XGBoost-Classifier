@@ -100,7 +100,7 @@ def render():
             prog = st.progress(0, "Loading datasets...")
             try:
                 master   = build_master_dataset()
-                featured = engineer_all_features(master)
+                featured = engineer_all_features(master, dropna=False)
                 prog.progress(30, f"Loaded {len(featured):,} samples")
             except Exception as e:
                 st.error(f"Error: {e}")
@@ -119,6 +119,14 @@ def render():
             X_test,  y_test  = X[test_mask],  y[test_mask]
             st.info(f"Train: {len(X_train):,} | Val: {len(X_val):,} | Test: {len(X_test):,}")
             prog.progress(40, "Scaling features...")
+
+            if len(X_train) == 0:
+                st.error("Error: The training dataset is completely empty (0 rows).")
+                st.write("Master rows:", len(master))
+                st.write("Featured rows:", len(featured))
+                st.write("Train mask sum:", train_mask.sum())
+                st.write("Index head:", featured.index[:5])
+                return
 
             from sklearn.preprocessing import StandardScaler
             scaler = StandardScaler()

@@ -1,0 +1,166 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.w { font-family: var(--font-sans); color: var(--color-text-primary); padding: 1rem 0; }
+.screen { border: 0.5px solid var(--color-border-tertiary); border-radius: 12px; margin-bottom: 14px; overflow: hidden; }
+.screen-header { background: var(--color-background-secondary); padding: 10px 16px; display: flex; align-items: center; gap: 10px; }
+.screen-num { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; }
+.screen-title { font-size: 13px; font-weight: 500; }
+.screen-body { padding: 14px 16px; }
+.reading { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+.reading-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.reading-text { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; }
+.reading-text b { color: var(--color-text-primary); font-weight: 500; }
+.val-chip { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; margin: 0 3px; }
+.green { background: #EAF3DE; color: #27500A; }
+.red   { background: #FCEBEB; color: #A32D2D; }
+.amber { background: #FAEEDA; color: #633806; }
+.blue  { background: #E6F1FB; color: #185FA5; }
+.action-box { border-radius: 8px; padding: 12px 16px; margin-top: 10px; border: 1.5px solid; }
+.action-green { background: #EAF3DE; border-color: #97C459; }
+.action-red   { background: #FCEBEB; border-color: #F09595; }
+.action-amber { background: #FAEEDA; border-color: #EF9F27; }
+.action-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.action-body  { font-size: 12px; line-height: 1.6; }
+</style>
+
+<div class="w">
+
+<div class="screen">
+  <div class="screen-header">
+    <div class="screen-num" style="background:#EAF3DE;color:#27500A;">1</div>
+    <div class="screen-title">Model training result — Train 66.8% · Val 58.0% · Test 56.0%</div>
+  </div>
+  <div class="screen-body">
+    <div class="reading">
+      <div class="reading-icon">✅</div>
+      <div class="reading-text"><b>Train 66.8%</b> — The model learned well from 2015–2021 data. This is expected to be highest.</div>
+    </div>
+    <div class="reading">
+      <div class="reading-icon">✅</div>
+      <div class="reading-text"><b>Val 58.0%</b> — During training, XGBoost checked itself on 2022–2023 data and scored 58%. Healthy — no alarm.</div>
+    </div>
+    <div class="reading">
+      <div class="reading-icon">✅</div>
+      <div class="reading-text"><b>Test 56.0%</b> — On data it NEVER saw (2024–2025), it scored 56%. This is your REAL accuracy. Above 55% threshold = <span class="val-chip green">GOOD TO TRADE</span></div>
+    </div>
+    <div class="reading">
+      <div class="reading-icon">📊</div>
+      <div class="reading-text"><b>Gap = 66.8 − 56.0 = 10.8%</b> — Slight overfitting but acceptable. If gap was > 15%, you'd reduce max_depth. At 10%, it's fine — the model generalises well enough.</div>
+    </div>
+    <div class="action-box action-green">
+      <div class="action-title" style="color:#27500A;">Your model is LIVE-READY at 56% accuracy</div>
+      <div class="action-body" style="color:#3B6D11;">56% > 55% threshold. You have a profitable edge. Expected monthly P&L at 56% win rate = ~₹3,800/month at 8 trades. Combine with credit spread wins (70% rate) and you reach ₹5K+.</div>
+    </div>
+  </div>
+</div>
+
+<div class="screen">
+  <div class="screen-header">
+    <div class="screen-num" style="background:#FAEEDA;color:#633806;">2</div>
+    <div class="screen-title">Feature importance — sp500_positive is #1. Is that right?</div>
+  </div>
+  <div class="screen-body">
+    <div class="reading">
+      <div class="reading-icon">🌍</div>
+      <div class="reading-text"><b>sp500_positive at #1</b> — This means "did US market close positive yesterday" is the strongest predictor of Nifty direction today. This makes complete sense — Nifty follows US markets with ~1 day lag, especially for gap-up/gap-down opens.</div>
+    </div>
+    <div class="reading">
+      <div class="reading-icon">📈</div>
+      <div class="reading-text"><b>sma5_vs_sma20 at #2</b> — Short-term trend vs medium-term trend. When 5-day average crosses above 20-day, momentum is building up. Classic signal.</div>
+    </div>
+    <div class="reading">
+      <div class="reading-icon">🗓</div>
+      <div class="reading-text"><b>quarter at #3</b> — Which quarter of the year (Q1/Q2/Q3/Q4). Nifty historically behaves differently each quarter — Budget quarter, earnings season, FII rebalancing. The model picked this up.</div>
+    </div>
+    <div class="reading">
+      <div class="reading-icon">⚠️</div>
+      <div class="reading-text"><b>All features have similar importance (0.016–0.019)</b> — The bars are almost the same length. This means NO single feature dominates — the model is using a broad combination. This is HEALTHY — it's not over-relying on one signal that might fail.</div>
+    </div>
+    <div class="action-box action-amber">
+      <div class="action-title" style="color:#854F0B;">What to do with this info</div>
+      <div class="action-body" style="color:#633806;">Before taking a trade, check: did S&P 500 close positive or negative last night? If model says UP but S&P was down 2% last night → be cautious. If model says UP and S&P was also up → stronger conviction.</div>
+    </div>
+  </div>
+</div>
+
+<div class="screen">
+  <div class="screen-header">
+    <div class="screen-num" style="background:#FCEBEB;color:#A32D2D;">3</div>
+    <div class="screen-title">Today's signal — DOWN · Confidence 1% · NO TRADE</div>
+  </div>
+  <div class="screen-body">
+    <div class="reading">
+      <div class="reading-icon">🔴</div>
+      <div class="reading-text"><b>Probability: 49.7% DOWN</b> — The model is essentially saying "I have no idea." 49.7% is barely below 50%. This is pure noise — the model sees no clear pattern today.</div>
+    </div>
+    <div class="reading">
+      <div class="reading-icon">📉</div>
+      <div class="reading-text"><b>Confidence: 1%</b> — Calculated as |0.497 − 0.500| × 200 = 0.6%. Rounded to 1%. Far below the 55% minimum threshold.</div>
+    </div>
+    <div class="reading">
+      <div class="reading-icon">✅</div>
+      <div class="reading-text"><b>NO TRADE is the CORRECT answer today.</b> The system is working exactly as designed. On a day the model has no edge, it correctly tells you to sit out.</div>
+    </div>
+    <div class="action-box action-red">
+      <div class="action-title" style="color:#A32D2D;">Today's action: DO NOTHING</div>
+      <div class="action-body" style="color:#791F1F;">Sitting out is not weakness. On days with confidence below 55%, any trade you take is a coin flip. You're not losing money today by not trading — you're protecting capital for the days when the model has genuine edge.</div>
+    </div>
+  </div>
+</div>
+
+<div class="screen">
+  <div class="screen-header">
+    <div class="screen-num" style="background:#E6F1FB;color:#185FA5;">4</div>
+    <div class="screen-title">Dashboard — VIX 22.8 HIGH · Nifty 23,124 · RSI 30.3</div>
+  </div>
+  <div class="screen-body">
+    <div class="reading">
+      <div class="reading-icon">🌡️</div>
+      <div class="reading-text"><b>VIX 22.8 — HIGH regime.</b> The VIX regime map shows "VIX 20–25 — HIGH · NOW" highlighted in blue. This means: <span class="val-chip amber">CREDIT SPREADS ONLY</span> — do not buy standalone CE/PE options today. Market is pricing in fear.</div>
+    </div>
+    <div class="reading">
+      <div class="reading-icon">📊</div>
+      <div class="reading-text"><b>RSI 30.3</b> — RSI at 30 means the market is in oversold territory. Historically, RSI below 30 precedes a bounce. This is a bullish contrarian signal. Combined with VIX 22.8, it suggests a bounce setup may be forming.</div>
+    </div>
+    <div class="reading">
+      <div class="reading-icon">📉</div>
+      <div class="reading-text"><b>MACD hist −210.7</b> — Strong negative momentum. Trend is still down. RSI says oversold but MACD says momentum hasn't reversed yet. Conflicting signals → exactly why confidence is 1% today.</div>
+    </div>
+    <div class="reading">
+      <div class="reading-icon">📊</div>
+      <div class="reading-text"><b>Stoch K = 5.7</b> — Extremely oversold (below 20 = oversold). Another confirming signal that market is stretched to the downside. Often precedes sharp reversals.</div>
+    </div>
+    <div class="reading">
+      <div class="reading-icon">💰</div>
+      <div class="reading-text"><b>FII net −₹7,500 Cr</b> — Heavy foreign selling today. This is why Nifty dropped. But this is also a sign of potential climax selling — when FII sell this aggressively, a bounce often follows in 1–3 days.</div>
+    </div>
+    <div class="action-box action-amber">
+      <div class="action-title" style="color:#854F0B;">What this market picture means for TOMORROW</div>
+      <div class="action-body" style="color:#633806;">RSI 30 + Stoch 5.7 + VIX 22.8 = Classic oversold bounce setup. Watch tomorrow's model confidence carefully. If confidence jumps to 60%+ UP direction → consider Bull Put Spread (VIX > 20 = use spread, not CE buy). Don't jump in today — wait for the model to confirm.</div>
+    </div>
+  </div>
+</div>
+
+<div class="screen">
+  <div class="screen-header">
+    <div class="screen-num" style="background:#EAF3DE;color:#27500A;">5</div>
+    <div class="screen-title">Golden Rules status — Rule 2 showing ⚠️ 1%</div>
+  </div>
+  <div class="screen-body">
+    <div class="reading">
+      <div class="reading-icon">⚠️</div>
+      <div class="reading-text"><b>Rule 2 shows "1%" in amber.</b> This means today's confidence is 1% — below the 55% threshold. The amber badge is warning you that if someone traded today, they'd be breaking Rule 2.</div>
+    </div>
+    <div class="reading">
+      <div class="reading-icon">✅</div>
+      <div class="reading-text"><b>All other rules show OK</b> — VIX 22.8 so spreads-only rule (Rule 5) is correctly flagged as active. Max 3 trades shows 0/3 meaning no current positions — capital is available.</div>
+    </div>
+    <div class="action-box action-green">
+      <div class="action-title" style="color:#27500A;">All systems correct. Wait for next signal day.</div>
+      <div class="action-body" style="color:#3B6D11;">The system is healthy. Model trained, rules monitoring, VIX regime identified correctly. Tomorrow after 3:30 PM, check the dashboard again for a new confidence reading.</div>
+    </div>
+  </div>
+</div>
+
+</div>

@@ -1,0 +1,137 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { font-family: var(--font-sans); color: var(--color-text-primary); padding: 1rem 0; }
+.slider-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; }
+.slider-header { display: flex; align-items: center; gap: 12px; margin-bottom:10px; }
+.slider-name { font-size: 15px; font-weight: 500; }
+.slider-val { font-size: 13px; font-weight: 500; padding: 3px 10px; border-radius: 20px; margin-left: auto; }
+.slider-track { height: 6px; background: var(--color-background-secondary); border-radius: 3px; margin-bottom: 10px; position: relative; overflow: visible; }
+.slider-fill { height: 100%; border-radius: 3px; position: relative; }
+.slider-thumb { width: 14px; height: 14px; border-radius: 50%; position: absolute; right: -7px; top: -4px; }
+.scale-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--color-text-tertiary); margin-bottom: 8px; }
+.eli5 { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 6px; }
+.analogy { font-size: 12px; color: var(--color-text-secondary); background: var(--color-background-secondary); border-radius: 6px; padding: 8px 12px; border-left: 3px solid; line-height: 1.6; }
+.warning { font-size: 11px; font-weight: 500; margin-top: 6px; padding: 5px 10px; border-radius: 6px; }
+.divider { height: 0.5px; background: var(--color-border-tertiary); margin: 16px 0; }
+.section-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: var(--color-text-primary); }
+</style>
+
+<div class="wrap">
+
+  <div class="section-title">The 4 XGBoost sliders — what they actually mean</div>
+
+  <div class="slider-card">
+    <div class="slider-header">
+      <div>
+        <div class="slider-name">n_estimators = 300</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px;">Number of trees in the forest</div>
+      </div>
+      <span class="slider-val" style="background:#EAF3DE;color:#27500A;">300 trees</span>
+    </div>
+    <div class="slider-track">
+      <div class="slider-fill" style="width:20%;background:#639922;">
+        <div class="slider-thumb" style="background:#639922;"></div>
+      </div>
+    </div>
+    <div class="scale-labels"><span>100</span><span>300</span><span>500</span><span>750</span><span>1000</span></div>
+    <div class="eli5">XGBoost builds many small decision trees and combines them. Think of it like asking 300 different analysts "will Nifty go up?" and taking the majority vote. More trees = more opinions = better accuracy, but also slower to train.</div>
+    <div class="analogy" style="border-color:#639922;">
+      <b>Analogy:</b> You ask 10 friends for restaurant advice → decent answer. You ask 300 friends → much better answer. But at 1000 friends, you're wasting time because they all start repeating each other.
+    </div>
+    <div class="warning" style="background:#FAEEDA;color:#633806;">Recommended: 300–500. Below 100 = underpowered. Above 500 = slow with minimal gain unless you have huge data.</div>
+  </div>
+
+  <div class="slider-card">
+    <div class="slider-header">
+      <div>
+        <div class="slider-name">max_depth = 5</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px;">How deep each tree can grow</div>
+      </div>
+      <span class="slider-val" style="background:#E6F1FB;color:#185FA5;">depth 5</span>
+    </div>
+    <div class="slider-track">
+      <div class="slider-fill" style="width:29%;background:#378ADD;">
+        <div class="slider-thumb" style="background:#378ADD;"></div>
+      </div>
+    </div>
+    <div class="scale-labels"><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span></div>
+    <div class="eli5">Each tree asks questions: "Is RSI below 30? → Is VIX above 20? → Is FII buying? → ..." Max depth = how many questions it can ask. Depth 5 means 5 levels of questions before making a prediction.</div>
+    <div class="analogy" style="border-color:#378ADD;">
+      <b>Too shallow (depth 2-3):</b> "Is RSI below 30? → YES = predict UP" — too simple, misses patterns.<br>
+      <b>Too deep (depth 8-10):</b> "Is RSI 28.47 AND VIX exactly 19.83 AND it's a Tuesday in March AND..." — too specific, only works on training data (overfitting).<br>
+      <b>Depth 5:</b> Goldilocks — complex enough to find real patterns, simple enough to generalise.
+    </div>
+    <div class="warning" style="background:#FCEBEB;color:#791F1F;">High depth = OVERFITTING danger. If train accuracy is 80% but val accuracy is 55%, reduce max_depth first.</div>
+  </div>
+
+  <div class="slider-card">
+    <div class="slider-header">
+      <div>
+        <div class="slider-name">learning_rate = 0.05</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px;">How fast the model learns from each tree</div>
+      </div>
+      <span class="slider-val" style="background:#FAEEDA;color:#633806;">slow &amp; steady</span>
+    </div>
+    <div class="slider-track">
+      <div class="slider-fill" style="width:25%;background:#EF9F27;">
+        <div class="slider-thumb" style="background:#EF9F27;"></div>
+      </div>
+    </div>
+    <div class="scale-labels"><span>0.01</span><span>0.05</span><span>0.10</span><span>0.20</span></div>
+    <div class="eli5">After each tree, the model corrects its mistakes. Learning rate = how big a correction it makes. Small correction = learns slowly but more accurately. Big correction = learns fast but overshoots.</div>
+    <div class="analogy" style="border-color:#EF9F27;">
+      <b>Analogy:</b> Learning to ride a bike. Small adjustments (0.01) = very slow learning but perfect balance. Big jerky adjustments (0.2) = quick to try but keeps falling. 0.05 = confident but controlled.
+    </div>
+    <div class="warning" style="background:#EAF3DE;color:#3B6D11;">Rule: Lower learning_rate → increase n_estimators. If lr=0.01, use 1000 trees. If lr=0.1, use 200 trees. They trade off.</div>
+  </div>
+
+  <div class="slider-card">
+    <div class="slider-header">
+      <div>
+        <div class="slider-name">subsample = 0.80</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px;">What % of data each tree sees</div>
+      </div>
+      <span class="slider-val" style="background:#E1F5EE;color:#0F6E56;">80% of data</span>
+    </div>
+    <div class="slider-track">
+      <div class="slider-fill" style="width:60%;background:#1D9E75;">
+        <div class="slider-thumb" style="background:#1D9E75;"></div>
+      </div>
+    </div>
+    <div class="scale-labels"><span>0.5</span><span>0.6</span><span>0.7</span><span>0.8</span><span>0.9</span><span>1.0</span></div>
+    <div class="eli5">Each tree is trained on a random 80% sample of your data. The 20% it didn't see keeps it honest — it can't memorise every single data point. This is called "bagging" and it's one of the main reasons XGBoost doesn't overfit as badly.</div>
+    <div class="analogy" style="border-color:#1D9E75;">
+      <b>Analogy:</b> Studying for an exam with 1000 practice questions. Each time you study, you randomly pick 800. By the end, you've seen all questions many times but from different angles — you understand concepts, not just memorised answers.
+    </div>
+    <div class="warning" style="background:#EAF3DE;color:#3B6D11;">Keep at 0.8. Going below 0.6 introduces too much randomness. Keeping at 1.0 (all data) = more overfit risk.</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-title">The 2 year dropdowns — Train until & Validate until</div>
+
+  <div style="background:var(--color-background-secondary);border-radius:10px;padding:14px 18px;margin-bottom:10px;">
+    <div style="font-size:13px;font-weight:500;margin-bottom:8px;">Train until year = 2021</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6;">
+      Everything from 2015 to end of 2021 is used to teach the model. This is ~1,500 trading days. The model reads every day's features and learns which patterns predict next-day direction.<br><br>
+      <b>Why not 2022 or 2023?</b> Because you need some data the model has NEVER seen to measure real accuracy. If you train until yesterday, the test set is empty — you have no way to verify if it actually works.
+    </div>
+  </div>
+
+  <div style="background:var(--color-background-secondary);border-radius:10px;padding:14px 18px;margin-bottom:10px;">
+    <div style="font-size:13px;font-weight:500;margin-bottom:8px;">Validate until year = 2023</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6;">
+      2022–2023 data is used DURING training — not to learn patterns, but to check if the model is overfitting. XGBoost's early stopping watches this validation score. When val accuracy stops improving for 30 rounds in a row → stop training. This prevents memorisation.<br><br>
+      <b>Think of it as:</b> A teacher checking your homework while you study. Not the final exam — just a check to make sure you're learning, not copying.
+    </div>
+  </div>
+
+  <div style="background:#EAF3DE;border:1px solid #97C459;border-radius:10px;padding:14px 18px;">
+    <div style="font-size:13px;font-weight:500;color:#27500A;margin-bottom:6px;">What's left = automatic test set</div>
+    <div style="font-size:12px;color:#3B6D11;line-height:1.6;">
+      Everything after "Validate until 2023" becomes the test set (2024–2025). The model has NEVER seen this. The accuracy shown on the test set is the real-world accuracy you should expect in live trading. This is your ground truth.
+    </div>
+  </div>
+
+</div>

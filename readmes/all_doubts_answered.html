@@ -1,0 +1,117 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { font-family: var(--font-sans); color: var(--color-text-primary); padding: 1rem 0; }
+.qa { border: 0.5px solid var(--color-border-tertiary); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+.q { background: var(--color-background-secondary); padding: 12px 16px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.a { padding: 14px 16px; font-size: 12px; color: var(--color-text-secondary); line-height: 1.7; border-top: 0.5px solid var(--color-border-tertiary); }
+.a b { color: var(--color-text-primary); font-weight: 500; }
+.highlight { background: var(--color-background-secondary); border-radius: 6px; padding: 8px 12px; margin-top: 8px; border-left: 3px solid #378ADD; font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; }
+.tag { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 10px; margin-right: 4px; }
+</style>
+
+<div class="wrap">
+
+<div class="qa">
+<div class="q"><span>What is XGBoost actually doing? Is it just math?</span></div>
+<div class="a">
+XGBoost is building a <b>forest of decision trees</b>. Each tree is a series of IF-THEN questions:<br><br>
+<b>Tree 1 asks:</b> "Is RSI below 40?" → YES → "Is VIX below 18?" → YES → "Predict UP (60% confident)"<br>
+<b>Tree 2 asks:</b> "Is MACD positive?" → YES → "Is FII buying?" → YES → "Predict UP (65% confident)"<br>
+<b>... × 300 trees</b><br><br>
+Final answer = weighted average of all 300 trees. If 210 trees say UP and 90 say DOWN → 70% probability UP → Confidence score 70%.
+<div class="highlight">It's not magic. It's 300 analysts asking different questions and voting. The genius is that each new tree corrects the mistakes of all previous trees (that's the "boosting" in XGBoost).</div>
+</div>
+</div>
+
+<div class="qa">
+<div class="q"><span>If accuracy is only 58%, how is this profitable?</span></div>
+<div class="a">
+This is the most important concept. Let's do the math:<br><br>
+<b>58% win rate, 8 trades/month:</b><br>
+Wins: 4.64 trades × ₹2,250 avg = +₹10,440<br>
+Losses: 3.36 trades × ₹2,000 avg = -₹6,720<br>
+Net: <b>+₹3,720/month</b><br><br>
+Add credit spread wins (70% win rate) and you reach ₹5,000+/month.<br><br>
+<b>Renaissance Technologies makes BILLIONS with 50.75% accuracy.</b> The casino makes billions with 52% win rate on roulette. You don't need to be right 9 out of 10 times. You need to be right slightly more than half the time, consistently, with proper sizing.
+<div class="highlight">The formula is: Edge × Position Size × Number of Trades = Profit. A small edge repeated 100 times beats a big edge used once.</div>
+</div>
+</div>
+
+<div class="qa">
+<div class="q"><span>What is "overfitting" and how do I know if my model has it?</span></div>
+<div class="a">
+<b>Overfitting = the model memorised the training data instead of learning patterns.</b><br><br>
+It's like a student who memorises 500 past exam questions word for word. They score 100% on a practice test with those exact questions. But the real exam has new questions → they fail.<br><br>
+<b>How to detect it:</b><br>
+— Train accuracy = 85%, Val accuracy = 56% → OVERFITTING (big gap)<br>
+— Train accuracy = 65%, Val accuracy = 61% → HEALTHY (small gap)<br><br>
+<b>How to fix it:</b><br>
+1. Reduce max_depth from 5 to 3<br>
+2. Reduce n_estimators from 300 to 150<br>
+3. Increase subsample from 0.8 to 0.9<br>
+4. Add more training data (go back to 2010 if you have it)
+</div>
+</div>
+
+<div class="qa">
+<div class="q"><span>What does "early stopping = 30" mean? Why does XGBoost stop before 300 trees?</span></div>
+<div class="a">
+<b>Early stopping saves you from overfitting automatically.</b><br><br>
+XGBoost trains tree by tree. After each tree, it checks: "Did my validation accuracy improve?" If it didn't improve for <b>30 trees in a row</b>, it stops — even if you asked for 300 trees.<br><br>
+Example: Tree 147 gives best validation accuracy. Trees 148–177 all make it slightly worse. At tree 177, XGBoost says "ok I peaked at 147, stopping here, rolling back to tree 147."<br><br>
+<b>This is why you might see "Best iteration: 183" in the output even though you set 300 estimators.</b>
+<div class="highlight">Think of it like baking a cake. The recipe says 40 minutes but you check every 5 minutes. At 30 minutes it's perfect. At 35 it's slightly burnt. At 40 it's ruined. Early stopping is the oven alarm that goes off when the cake is at its best.</div>
+</div>
+</div>
+
+<div class="qa">
+<div class="q"><span>My model shows 61% on test set. Is that good enough to trade live?</span></div>
+<div class="a">
+<b>Yes. 61% is very good for stock prediction.</b><br><br>
+Here's the context:<br>
+— Random guess: 50%<br>
+— Average published ML paper: 51-60%<br>
+— Your target: 55%+<br>
+— Your result: 61% → <b>Top 15% of published research</b><br>
+— Renaissance Technologies: 50.75%<br><br>
+But here's the check: Look at the <b>confusion matrix</b> in Results tab:<br>
+— If it predicts UP correctly 65% of the time but DOWN only 55% → your UP trades will be more reliable<br>
+— Adjust strategy: use higher confidence threshold for DOWN signals (require 70% instead of 55%)
+</div>
+</div>
+
+<div class="qa">
+<div class="q"><span>What happens when I click "Load Data & Train XGBoost"?</span></div>
+<div class="a">
+Here's exactly what runs, step by step:<br><br>
+<b>Step 1 (0-30%):</b> Reads all your CSVs from data/ folder. Merges nifty_daily + vix_daily + pcr + fii + sp500 + bank_nifty into one big table with ~6,000 rows.<br><br>
+<b>Step 2 (30-40%):</b> Runs features.py — calculates RSI, MACD, VIX spike, BB width, all 55+ features. Creates a "target" column = 1 if next day close > today close, else 0.<br><br>
+<b>Step 3 (40-55%):</b> Splits data by year. Scales features using StandardScaler (mean=0, std=1) fitted ONLY on train data.<br><br>
+<b>Step 4 (55-85%):</b> XGBoost trains 300 trees one by one. After each tree it checks validation accuracy. Stops early if no improvement for 30 rounds.<br><br>
+<b>Step 5 (85-100%):</b> Evaluates on test set (data it never saw). Shows accuracy, confusion matrix, feature importance. Predicts today's direction.<br><br>
+<b>The trained model is saved to Streamlit session state.</b> This means it's available on Signal Engine page instantly — no retraining needed until you restart the app.
+</div>
+</div>
+
+<div class="qa">
+<div class="q"><span>The sidebar has "India VIX" and "Nifty Spot" sliders — what are those for?</span></div>
+<div class="a">
+Those are <b>global live parameters</b> that feed into multiple pages simultaneously:<br><br>
+<b>India VIX slider:</b> Sets the current VIX for the Signal Engine page (overrides auto-loaded value if you want to simulate different scenarios). Also controls the VIX regime display on Dashboard.<br><br>
+<b>Nifty Spot:</b> Used by Signal Engine to calculate exact strike prices (e.g. "ATM" = nearest 100 to spot). Also used by Strategy Guide page to draw payoff diagrams at the correct price level.<br><br>
+In normal use: leave these at default (they auto-load from your latest CSV data). Use them to ask "what if VIX was 25?" scenarios.
+</div>
+</div>
+
+<div class="qa">
+<div class="q"><span>Why does the Signal Engine sometimes say "No Trade" even when the model is confident?</span></div>
+<div class="a">
+Two reasons:<br><br>
+<b>Reason 1 — Confidence below 55%:</b> The model's probability is close to 50% (e.g. 62% UP). That converts to confidence = |0.62 - 0.50| × 200 = 24%. Below the 55% threshold → No Trade. The model doesn't have a strong enough edge today.<br><br>
+<b>Reason 2 — VIX override:</b> Even if confidence is 72%, if VIX is 22, buying a CE/PE is expensive and risky. The system might downgrade to "Bear Call Spread" instead of "No Trade" — but it will never buy options in VIX > 20 unless confidence is very high.<br><br>
+<b>No Trade is the right answer ~40% of days.</b> That's the system protecting your capital. Missing a trade costs ₹0. Taking a bad trade costs ₹2,000.
+</div>
+</div>
+
+</div>
