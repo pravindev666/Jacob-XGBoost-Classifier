@@ -76,7 +76,7 @@ def render():
         if st.button("🚀 Train All Horizon Models", type="primary"):
             try:
                 master   = build_master_dataset()
-                featured = engineer_all_features(master)
+                featured = engineer_all_features(master, dropna=True)
             except Exception as e:
                 st.error(f"Data error: {e}")
                 return

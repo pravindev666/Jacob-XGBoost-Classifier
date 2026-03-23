@@ -169,26 +169,38 @@ def engineer_all_features(df: pd.DataFrame, dropna: bool = True) -> pd.DataFrame
         if "VIX" in f.columns:
             f[f"vix_lag_{lag}"] = f["VIX"].shift(lag)
 
-    # ── Targets: multi-horizon (1D default + 3/5/7/14/21/30 day) ────────────
-    f["target"]     = (f["Close"].shift(-1)  > f["Close"]).astype(int)
-    f["target_3d"]  = (f["Close"].shift(-3)  > f["Close"]).astype(int)
-    f["target_5d"]  = (f["Close"].shift(-5)  > f["Close"]).astype(int)
-    f["target_7d"]  = (f["Close"].shift(-7)  > f["Close"]).astype(int)
-    f["target_14d"] = (f["Close"].shift(-14) > f["Close"]).astype(int)
-    f["target_21d"] = (f["Close"].shift(-21) > f["Close"]).astype(int)
-    f["target_30d"] = (f["Close"].shift(-30) > f["Close"]).astype(int)
+    # ── Targets: multi-horizon (1D to 30D) ─────────────────────────────────
+    # IMPORTANT: Use float (not int) so NaN is preserved for last N rows
+    # The last 30 rows have no future data -> target_30d must be NaN, not 0
+    # dropna() will then correctly exclude those rows from training
+    TARGET_MAP = {
+        "target":     1,
+        "target_3d":  3,
+        "target_5d":  5,
+        "target_7d":  7,
+        "target_14d": 14,
+        "target_21d": 21,
+        "target_30d": 30,
+    }
+    new_cols = {}
+    for col, n_days in TARGET_MAP.items():
+        future_close = f["Close"].shift(-n_days)
+        # Keep NaN where future data doesn't exist (last n_days rows)
+        new_cols[col] = np.where(future_close.isna(), np.nan,
+                                 (future_close > f["Close"]).astype(float))
+    f = pd.concat([f, pd.DataFrame(new_cols, index=f.index)], axis=1)
 
-    TARGET_COLS = ["target","target_3d","target_5d","target_7d",
-                   "target_14d","target_21d","target_30d"]
+    TARGET_COLS = list(TARGET_MAP.keys())
 
     if dropna:
-        # Drop rows where ANY of the target columns used are NaN
-        # To avoid dropping too much recent data, we'll only drop if ALL are NaN
-        # Wait, the user's implementation:
-        present = [c for c in TARGET_COLS if c in f.columns]
-        return f.dropna(subset=present)
+        # Drop rows where features OR targets are NaN
+        # This correctly removes: first ~200 rows (rolling windows) AND last 30 rows (no future)
+        return f.dropna(subset=TARGET_COLS)
     else:
-        return f.ffill()
+        # Live mode: ffill features, but targets stay NaN for latest rows (that's fine)
+        feature_cols = [c for c in f.columns if c not in TARGET_COLS]
+        f[feature_cols] = f[feature_cols].ffill()
+        return f
 
 
 def get_feature_columns(df: pd.DataFrame) -> list:

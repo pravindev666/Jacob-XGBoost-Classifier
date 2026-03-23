@@ -185,13 +185,13 @@ def build_master_dataset() -> pd.DataFrame:
     # Merge VIX
     if vix is not None:
         master = master.join(vix[["VIX"]], how="left")
-        master["VIX"] = master["VIX"].fillna(method="ffill")
+        master["VIX"] = master["VIX"].ffill()
 
     # Merge PCR
     pcr = load_pcr()
     if pcr is not None:
         master = master.join(pcr[["PCR"]], how="left")
-        master["PCR"] = master["PCR"].fillna(method="ffill")
+        master["PCR"] = master["PCR"].ffill()
 
     # Merge FII/DII net flow (normalized to 'fii_net' by load_fii_dii)
     fii = load_fii_dii()
