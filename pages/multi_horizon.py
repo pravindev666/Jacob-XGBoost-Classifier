@@ -345,7 +345,11 @@ for hz, model in models.items():
             hz_labels = list(accuracies.keys())
             test_accs  = [accuracies[h]["test_acc"] * 100 for h in hz_labels]
             train_accs = [accuracies[h]["train_acc"] * 100 for h in hz_labels]
-            colors     = [accuracies[h]["color"] for h in hz_labels]
+            # Strip legacy "88" alpha channel from old cached session state colors
+            colors     = [
+                c[:7] if isinstance(c, str) and c.startswith("#") and len(c) >= 7 else c 
+                for c in [accuracies[h]["color"] for h in hz_labels]
+            ]
 
             col1, col2 = st.columns(2)
             with col1:
