@@ -15,16 +15,36 @@ def get_signal(confidence: float, vix: float, direction: str) -> dict:
         }
 
     if confidence >= 70:
+        # Rule #5 override: VIX > 20 = NEVER buy options, always credit spread
+        if vix > 20:
+            if direction == "UP":
+                return {
+                    "action": "BULL_PUT_SPREAD",
+                    "label": "🟡 Bull Put Spread — VIX Override",
+                    "reason": (
+                        f"High confidence ({confidence:.0f}%) but VIX {vix:.1f} > 20 → "
+                        f"Rule #5 override: premiums are expensive, credit spread is safer. "
+                        f"You still profit from the UP direction with defined risk."
+                    ),
+                }
+            else:
+                return {
+                    "action": "BEAR_CALL_SPREAD",
+                    "label": "🟡 Bear Call Spread — VIX Override",
+                    "reason": (
+                        f"High confidence ({confidence:.0f}%) but VIX {vix:.1f} > 20 → "
+                        f"Rule #5 override: premiums are expensive, credit spread is safer. "
+                        f"You still profit from the DOWN direction with defined risk."
+                    ),
+                }
+        # VIX <= 20: safe to buy options
         if direction == "UP":
-            buying_ok = vix < 20
             return {
                 "action": "BUY_CALL",
                 "label": "🟢 Buy ATM Call (CE)" + (" — Ideal (low VIX)" if vix < 15 else ""),
                 "reason": (
                     f"High confidence ({confidence:.0f}%) + UP signal. "
-                    + (f"VIX {vix:.1f} < 20 — premiums are cheap, good to buy options."
-                       if buying_ok else
-                       f"VIX {vix:.1f} > 20 — premiums are expensive, consider Bull Put Spread instead.")
+                    f"VIX {vix:.1f} < 20 — premiums are cheap, good to buy options."
                 ),
             }
         else:
@@ -33,8 +53,7 @@ def get_signal(confidence: float, vix: float, direction: str) -> dict:
                 "label": "🟢 Buy ATM Put (PE)" + (" — Ideal (low VIX)" if vix < 15 else ""),
                 "reason": (
                     f"High confidence ({confidence:.0f}%) + DOWN signal. "
-                    + (f"VIX {vix:.1f} < 20 — buy options." if vix < 20
-                       else f"VIX {vix:.1f} > 20 — consider Bear Call Spread.")
+                    f"VIX {vix:.1f} < 20 — premiums are cheap, buy options."
                 ),
             }
 

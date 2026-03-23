@@ -48,6 +48,14 @@ def render():
     init_journal()
     st.markdown("## 📓 Trade Journal")
     st.markdown("Track every trade, learn from patterns, improve your edge.")
+    st.markdown(
+        '<div style="background:#1a1d2e;border:1px solid #2a2d3e;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#b0b0b0;">'
+        '💡 <b style="color:#e0e0e0;">What is a trade journal?</b> Think of this like a diary for your trading. '
+        'Every time you make a trade, you write down why you did it and what happened. '
+        'Good traders learn from both their wins and losses!'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     # ── Add Trade ─────────────────────────────────────────────────────────────
     with st.expander("➕ Log New Trade", expanded=False):
@@ -227,7 +235,7 @@ def render():
             return f"color: {'#22c55e' if val > 0 else '#ef4444' if val < 0 else '#b0b0b0'}"
         return ""
 
-    styled = filtered.style.applymap(style_pnl, subset=["PnL"])
+    styled = filtered.style.map(style_pnl, subset=["PnL"])
     st.dataframe(styled, use_container_width=True, hide_index=True)
 
     # ── Monthly Review Template ───────────────────────────────────────────────
@@ -242,5 +250,13 @@ def render():
         "What was my win rate this month?",
         "What can I improve next month?",
     ]
+
+    if "monthly_review" not in st.session_state:
+        st.session_state.monthly_review = {q: "" for q in review_qs}
+
     for q in review_qs:
-        st.text_area(q, key=f"review_{q}", height=60)
+        val = st.text_area(q, value=st.session_state.monthly_review[q], key=f"review_{q}", height=60)
+        st.session_state.monthly_review[q] = val
+
+    if st.button("💾 Save Review Notes"):
+        st.success("Review notes saved for this session!")

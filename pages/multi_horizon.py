@@ -40,6 +40,14 @@ def _get_conviction(probs: dict) -> dict:
 def render():
     st.markdown("## 📊 Multi-Horizon Intelligence")
     st.markdown("7 XGBoost models predict Nifty direction from 1 day to 30 days ahead — simultaneously.")
+    st.markdown(
+        '<div style="background:#1a1d2e;border:1px solid #2a2d3e;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#b0b0b0;">'
+        '💡 <b style="color:#e0e0e0;">How this works:</b> Instead of guessing just tomorrow, we ask 7 separate AI models: '
+        '"Will Nifty go up in 1 day? 3 days? 5 days? 7 days? 14 days? 21 days? 30 days?" '
+        'When most models agree → 🟢 strong signal. When they disagree → 🔴 stay out.'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     # ── Check if models trained ───────────────────────────────────────────────
     models = st.session_state.get("mh_models", {})
@@ -54,6 +62,14 @@ def render():
     # ── Tab 1: Train ──────────────────────────────────────────────────────────
     with tab_train:
         st.markdown("### Train 7 XGBoost Models (one per horizon)")
+        st.markdown(
+            '<div style="background:#1a1d2e;border:1px solid #2a2d3e;border-radius:8px;padding:10px 16px;margin-bottom:12px;font-size:12px;color:#b0b0b0;">'
+            '💡 <b style="color:#e0e0e0;">What is training?</b> The AI reads years of past Nifty data and learns patterns. '
+            'Like studying for an exam — the more history it reads, the better it predicts the future. '
+            'Click the button below to start training all 7 models.'
+            '</div>',
+            unsafe_allow_html=True
+        )
 
         col1, col2 = st.columns(2)
         with col1:
@@ -174,189 +190,209 @@ for hz, model in models.items():
     # ── Tab 2: Conviction Panel ───────────────────────────────────────────────
     with tab_conviction:
         st.markdown("### All-Horizon Conviction — Live Predictions")
-
-        if not models:
-            st.warning("Train the models first in the **Train All Horizons** tab.")
-            return
-
-        featured_df = st.session_state.get("mh_featured")
-        scaler      = st.session_state.get("mh_scaler")
-        feat_cols   = st.session_state.get("mh_feat_cols")
-
-        if featured_df is None or scaler is None:
-            st.warning("No feature data found. Retrain models.")
-            return
-
-        latest = featured_df[feat_cols].iloc[[-1]].fillna(0)
-        latest_s = pd.DataFrame(scaler.transform(latest), columns=feat_cols)
-
-        # Get probabilities from all models
-        probs = {}
-        for hz, model in models.items():
-            prob = model.predict_proba(latest_s)[0][1]
-            probs[hz] = prob
-
-        conv = _get_conviction(probs)
-
-        # Big conviction display
-        conv_color = "#22c55e" if conv["direction"] == "UP" else "#ef4444"
         st.markdown(
-            f'<div style="background:{CARD_BG};border:2px solid {conv_color};'
-            f'border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;'
-            f'align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">'
-            f'<div>'
-            f'<div style="font-size:28px;font-weight:700;color:{conv_color};">'
-            f'{"↑" if conv["direction"]=="UP" else "↓"} {conv["direction"]} — '
-            f'{conv["conviction"]}/7 horizons agree</div>'
-            f'<div style="color:#b0b0b0;font-size:14px;margin-top:4px;">'
-            f'Avg confidence: {conv["confidence"]:.0f}% · '
-            f'Up votes: {conv["up_votes"]} · Down votes: {conv["down_votes"]}</div>'
-            f'</div>'
-            f'<div style="text-align:center;">'
-            f'<div style="font-size:48px;font-weight:700;color:{conv_color};">'
-            f'{conv["conviction"]}/7</div>'
-            f'<div style="color:#888;font-size:12px;">Horizon votes</div>'
-            f'</div>'
-            f'</div>',
+            '<div style="background:#1a1d2e;border:1px solid #2a2d3e;border-radius:8px;padding:10px 16px;margin-bottom:12px;font-size:12px;color:#b0b0b0;">'
+            '💡 <b style="color:#e0e0e0;">What is conviction?</b> If 6 out of 7 models agree the market will go UP, '
+            'that\'s 6/7 conviction = very strong signal. If only 4/7 agree, it\'s weak. '
+            'Think of it like asking 7 weather apps — if most agree, you can trust it.'
+            '</div>',
             unsafe_allow_html=True
         )
 
-        # Per-horizon cards
-        cols = st.columns(7)
-        for i, (hz, cfg) in enumerate(HORIZONS.items()):
-            if hz not in probs:
-                continue
-            prob = probs[hz]
-            conf = abs(prob - 0.5) * 200
-            direction = "UP" if prob > 0.5 else "DOWN"
-            d_color = "#22c55e" if prob > 0.5 else "#ef4444"
-            bg = "#0d2818" if prob > 0.5 else "#1a0d0d"
-            with cols[i]:
+        if not models:
+            st.warning("⚠️ Train the models first in the **Train All Horizons** tab.")
+        else:
+            featured_df = st.session_state.get("mh_featured")
+            scaler      = st.session_state.get("mh_scaler")
+            feat_cols   = st.session_state.get("mh_feat_cols")
+
+            if featured_df is None or scaler is None:
+                st.warning("No feature data found. Retrain models.")
+            else:
+                latest = featured_df[feat_cols].iloc[[-1]].fillna(0)
+                latest_s = pd.DataFrame(scaler.transform(latest), columns=feat_cols)
+
+                # Get probabilities from all models
+                probs = {}
+                for hz, model in models.items():
+                    prob = model.predict_proba(latest_s)[0][1]
+                    probs[hz] = prob
+
+                conv = _get_conviction(probs)
+
+                # Big conviction display
+                conv_color = "#22c55e" if conv["direction"] == "UP" else "#ef4444"
                 st.markdown(
-                    f'<div style="background:{bg};border:1px solid {cfg["color"]};'
-                    f'border-radius:8px;padding:10px 8px;text-align:center;">'
-                    f'<div style="font-size:13px;font-weight:600;color:{cfg["color"]};">{hz}</div>'
-                    f'<div style="font-size:18px;font-weight:700;color:{d_color};margin:4px 0;">'
-                    f'{"↑" if prob>0.5 else "↓"} {prob*100:.0f}%</div>'
-                    f'<div style="font-size:10px;color:#888;">conf {conf:.0f}%</div>'
-                    f'<div style="height:4px;background:#2a2d3e;border-radius:2px;margin-top:6px;overflow:hidden;">'
-                    f'<div style="height:100%;width:{min(conf,100):.0f}%;background:{d_color};border-radius:2px;"></div>'
+                    f'<div style="background:{CARD_BG};border:2px solid {conv_color};'
+                    f'border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;'
+                    f'align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">'
+                    f'<div>'
+                    f'<div style="font-size:28px;font-weight:700;color:{conv_color};">'
+                    f'{"↑" if conv["direction"]=="UP" else "↓"} {conv["direction"]} — '
+                    f'{conv["conviction"]}/7 horizons agree</div>'
+                    f'<div style="color:#b0b0b0;font-size:14px;margin-top:4px;">'
+                    f'Avg confidence: {conv["confidence"]:.0f}% · '
+                    f'Up votes: {conv["up_votes"]} · Down votes: {conv["down_votes"]}</div>'
+                    f'</div>'
+                    f'<div style="text-align:center;">'
+                    f'<div style="font-size:48px;font-weight:700;color:{conv_color};">'
+                    f'{conv["conviction"]}/7</div>'
+                    f'<div style="color:#888;font-size:12px;">Horizon votes</div>'
                     f'</div>'
                     f'</div>',
                     unsafe_allow_html=True
                 )
 
-        # What this means for trading
-        st.markdown("---")
-        st.markdown("#### What This Means for Today's Trade")
+                # Per-horizon cards
+                cols = st.columns(7)
+                for i, (hz, cfg) in enumerate(HORIZONS.items()):
+                    if hz not in probs:
+                        continue
+                    prob = probs[hz]
+                    conf = abs(prob - 0.5) * 200
+                    direction = "UP" if prob > 0.5 else "DOWN"
+                    d_color = "#22c55e" if prob > 0.5 else "#ef4444"
+                    bg = "#0d2818" if prob > 0.5 else "#1a0d0d"
+                    with cols[i]:
+                        st.markdown(
+                            f'<div style="background:{bg};border:1px solid {cfg["color"]};'
+                            f'border-radius:8px;padding:10px 8px;text-align:center;">'
+                            f'<div style="font-size:13px;font-weight:600;color:{cfg["color"]};">{hz}</div>'
+                            f'<div style="font-size:18px;font-weight:700;color:{d_color};margin:4px 0;">'
+                            f'{"↑" if prob>0.5 else "↓"} {prob*100:.0f}%</div>'
+                            f'<div style="font-size:10px;color:#888;">conf {conf:.0f}%</div>'
+                            f'<div style="height:4px;background:#2a2d3e;border-radius:2px;margin-top:6px;overflow:hidden;">'
+                            f'<div style="height:100%;width:{min(conf,100):.0f}%;background:{d_color};border-radius:2px;"></div>'
+                            f'</div>'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
 
-        vix = st.session_state.get("global_vix", 18.0)
-        nifty = st.session_state.get("global_nifty", 22000)
+                # What this means for trading
+                st.markdown("---")
+                st.markdown("#### What This Means for Today's Trade")
 
-        # Determine best actionable horizon
-        actionable = {hz: p for hz, p in probs.items()
-                      if abs(p - 0.5) * 200 >= 55}
+                # Read live VIX/Nifty from data_loader instead of stale session keys
+                import utils.data_loader as dl
+                _nifty_df = dl.load_nifty_daily()
+                _vix_df = dl.load_vix_daily()
+                vix = float(_vix_df.iloc[-1]['VIX']) if _vix_df is not None and not _vix_df.empty else 18.0
+                nifty = int(_nifty_df.iloc[-1]['Close']) if _nifty_df is not None and not _nifty_df.empty else 22000
 
-        if not actionable:
-            st.markdown(
-                f'<div style="background:#1a0d0d;border:2px solid #5c1a1a;'
-                f'border-radius:10px;padding:16px 20px;">'
-                f'<div style="font-size:18px;font-weight:600;color:#ef4444;">⛔ No Trade — All Horizons Below 55% Confidence</div>'
-                f'<div style="color:#b0b0b0;margin-top:6px;font-size:13px;">'
-                f'Highest confidence today: {max(abs(p-0.5)*200 for p in probs.values()):.0f}%. '
-                f'Threshold is 55%. Wait for a stronger setup. Patience is edge.</div>'
-                f'</div>',
-                unsafe_allow_html=True
-            )
-        else:
-            best_hz = max(actionable, key=lambda h: abs(probs[h] - 0.5))
-            best_prob = probs[best_hz]
-            best_conf = abs(best_prob - 0.5) * 200
-            best_dir = "UP" if best_prob > 0.5 else "DOWN"
+                # Determine best actionable horizon
+                actionable = {hz: p for hz, p in probs.items()
+                              if abs(p - 0.5) * 200 >= 55}
 
-            if vix > 20:
-                strategy = "Bull Put Spread" if best_dir == "UP" else "Bear Call Spread"
-                reason = f"VIX {vix:.1f} > 20 — Credit spread only (no option buying)"
-            elif best_conf >= 70:
-                strategy = "Buy ATM Call (CE)" if best_dir == "UP" else "Buy ATM Put (PE)"
-                reason = f"VIX {vix:.1f} < 20 and high confidence — buy options"
-            else:
-                strategy = "Bull Put Spread" if best_dir == "UP" else "Bear Call Spread"
-                reason = f"Medium confidence — credit spread safer"
+                if not actionable:
+                    st.markdown(
+                        f'<div style="background:#1a0d0d;border:2px solid #5c1a1a;'
+                        f'border-radius:10px;padding:16px 20px;">'
+                        f'<div style="font-size:18px;font-weight:600;color:#ef4444;">⛔ No Trade — All Horizons Below 55% Confidence</div>'
+                        f'<div style="color:#b0b0b0;margin-top:6px;font-size:13px;">'
+                        f'Highest confidence today: {max(abs(p-0.5)*200 for p in probs.values()):.0f}%. '
+                        f'Threshold is 55%. Wait for a stronger setup. Patience is edge.</div>'
+                        f'<div style="color:#888;font-size:12px;margin-top:8px;font-style:italic;">'
+                        f'💡 Think of it like weather: if 4 out of 7 forecasters say "sunny" and 3 say "rain" — you bring an umbrella. '
+                        f'Same here: when models disagree, we sit out and wait for clarity.</div>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
+                else:
+                    best_hz = max(actionable, key=lambda h: abs(probs[h] - 0.5))
+                    best_prob = probs[best_hz]
+                    best_conf = abs(best_prob - 0.5) * 200
+                    best_dir = "UP" if best_prob > 0.5 else "DOWN"
 
-            s_color = "#22c55e" if best_dir == "UP" else "#f59e0b"
-            st.markdown(
-                f'<div style="background:#0d2818;border:2px solid #1a5c36;'
-                f'border-radius:10px;padding:16px 20px;">'
-                f'<div style="font-size:20px;font-weight:600;color:{s_color};">'
-                f'⚡ {strategy} — Best signal from {best_hz} horizon</div>'
-                f'<div style="color:#b0b0b0;margin-top:6px;font-size:13px;">'
-                f'Direction: {best_dir} · Probability: {best_prob*100:.1f}% · Confidence: {best_conf:.0f}% · {reason}</div>'
-                f'<div style="color:#888;font-size:12px;margin-top:4px;">'
-                f'Other actionable horizons: {", ".join(h for h in actionable if h != best_hz) or "none"}</div>'
-                f'</div>',
-                unsafe_allow_html=True
-            )
+                    if vix > 20:
+                        strategy = "Bull Put Spread" if best_dir == "UP" else "Bear Call Spread"
+                        reason = f"VIX {vix:.1f} > 20 — Credit spread only (no option buying)"
+                    elif best_conf >= 70:
+                        strategy = "Buy ATM Call (CE)" if best_dir == "UP" else "Buy ATM Put (PE)"
+                        reason = f"VIX {vix:.1f} < 20 and high confidence — buy options"
+                    else:
+                        strategy = "Bull Put Spread" if best_dir == "UP" else "Bear Call Spread"
+                        reason = f"Medium confidence — credit spread safer"
+
+                    s_color = "#22c55e" if best_dir == "UP" else "#f59e0b"
+                    st.markdown(
+                        f'<div style="background:#0d2818;border:2px solid #1a5c36;'
+                        f'border-radius:10px;padding:16px 20px;">'
+                        f'<div style="font-size:20px;font-weight:600;color:{s_color};">'
+                        f'⚡ {strategy} — Best signal from {best_hz} horizon</div>'
+                        f'<div style="color:#b0b0b0;margin-top:6px;font-size:13px;">'
+                        f'Direction: {best_dir} · Probability: {best_prob*100:.1f}% · Confidence: {best_conf:.0f}% · {reason}</div>'
+                        f'<div style="color:#888;font-size:12px;margin-top:4px;">'
+                        f'Other actionable horizons: {", ".join(h for h in actionable if h != best_hz) or "none"}</div>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
 
     # ── Tab 3: Accuracy Comparison ────────────────────────────────────────────
     with tab_accuracy:
         st.markdown("### Accuracy by Horizon")
+        st.markdown(
+            '<div style="background:#1a1d2e;border:1px solid #2a2d3e;border-radius:8px;padding:10px 16px;margin-bottom:12px;font-size:12px;color:#b0b0b0;">'
+            '💡 <b style="color:#e0e0e0;">What does accuracy mean here?</b> If a model has 58% accuracy, it correctly predicted '
+            'the market direction 58 out of 100 times on data it had never seen before. '
+            'That\'s enough to make money because we manage risk on every trade.'
+            '</div>',
+            unsafe_allow_html=True
+        )
 
         if not accuracies:
-            st.warning("Train models first.")
-            return
+            st.warning("Train models first in the **Train All Horizons** tab.")
+        else:
+            hz_labels = list(accuracies.keys())
+            test_accs  = [accuracies[h]["test_acc"] * 100 for h in hz_labels]
+            train_accs = [accuracies[h]["train_acc"] * 100 for h in hz_labels]
+            colors     = [accuracies[h]["color"] for h in hz_labels]
 
-        hz_labels = list(accuracies.keys())
-        test_accs  = [accuracies[h]["test_acc"] * 100 for h in hz_labels]
-        train_accs = [accuracies[h]["train_acc"] * 100 for h in hz_labels]
-        colors     = [accuracies[h]["color"] for h in hz_labels]
+            col1, col2 = st.columns(2)
+            with col1:
+                fig = go.Figure()
+                fig.add_trace(go.Bar(name="Train", x=hz_labels, y=train_accs,
+                                     marker_color=colors, opacity=0.5))
+                fig.add_trace(go.Bar(name="Test (live proxy)", x=hz_labels, y=test_accs,
+                                     marker_color=colors,
+                                     text=[f"{a:.1f}%" for a in test_accs],
+                                     textposition="outside"))
+                fig.add_hline(y=55, line_dash="dash", line_color="#888",
+                              annotation_text="55% min threshold")
+                fig.update_layout(
+                    paper_bgcolor=DARK_BG, plot_bgcolor=DARK_BG,
+                    font_color="#b0b0b0", height=320, barmode="group",
+                    yaxis_range=[45, max(train_accs) + 10],
+                    yaxis_title="Accuracy (%)",
+                    legend=dict(bgcolor="rgba(0,0,0,0)"),
+                    margin=dict(l=10, r=10, t=10, b=40)
+                )
+                fig.update_yaxes(gridcolor="#1e2130")
+                st.plotly_chart(fig, use_container_width=True)
 
-        col1, col2 = st.columns(2)
-        with col1:
-            fig = go.Figure()
-            fig.add_trace(go.Bar(name="Train", x=hz_labels, y=train_accs,
-                                 marker_color=colors, opacity=0.5))
-            fig.add_trace(go.Bar(name="Test (live proxy)", x=hz_labels, y=test_accs,
-                                 marker_color=colors,
-                                 text=[f"{a:.1f}%" for a in test_accs],
-                                 textposition="outside"))
-            fig.add_hline(y=55, line_dash="dash", line_color="#888",
-                          annotation_text="55% min threshold")
-            fig.update_layout(
-                paper_bgcolor=DARK_BG, plot_bgcolor=DARK_BG,
-                font_color="#b0b0b0", height=320, barmode="group",
-                yaxis_range=[45, max(train_accs) + 10],
-                yaxis_title="Accuracy (%)",
-                legend=dict(bgcolor="rgba(0,0,0,0)"),
-                margin=dict(l=10, r=10, t=10, b=40)
-            )
-            fig.update_yaxes(gridcolor="#1e2130")
-            st.plotly_chart(fig, use_container_width=True)
+            with col2:
+                st.markdown("**Expected monthly P&L by horizon**")
+                trades_per_month = {"1D": 20, "3D": 7, "5D": 4, "7D": 4,
+                                    "14D": 2, "21D": 1, "30D": 1}
+                avg_win, avg_loss = 2250, 2000
 
-        with col2:
-            st.markdown("**Expected monthly P&L by horizon**")
-            trades_per_month = {"1D": 20, "3D": 7, "5D": 4, "7D": 4,
-                                "14D": 2, "21D": 1, "30D": 1}
-            avg_win, avg_loss = 2250, 2000
+                pnl_data = []
+                for hz in hz_labels:
+                    if hz not in accuracies:
+                        continue
+                    wr = accuracies[hz]["test_acc"]
+                    trades = trades_per_month.get(hz, 2)
+                    ev = (wr * avg_win - (1-wr) * avg_loss) * trades
+                    pnl_data.append({"Horizon": hz, "Win Rate": f"{wr*100:.1f}%",
+                                      "Trades/mo": trades, "Expected P&L": f"₹{ev:,.0f}"})
 
-            pnl_data = []
-            for hz in hz_labels:
-                if hz not in accuracies:
-                    continue
-                wr = accuracies[hz]["test_acc"]
-                trades = trades_per_month.get(hz, 2)
-                ev = (wr * avg_win - (1-wr) * avg_loss) * trades
-                pnl_data.append({"Horizon": hz, "Win Rate": f"{wr*100:.1f}%",
-                                  "Trades/mo": trades, "Expected P&L": f"₹{ev:,.0f}"})
+                df = pd.DataFrame(pnl_data)
+                st.dataframe(df, use_container_width=True, hide_index=True)
 
-            df = pd.DataFrame(pnl_data)
-            st.dataframe(df, use_container_width=True, hide_index=True)
-
-            st.markdown(
-                '<div style="background:#0d2818;border-radius:8px;padding:12px 14px;margin-top:8px;">'
-                '<div style="font-size:13px;font-weight:500;color:#22c55e;">Best horizons for P&L</div>'
-                '<div style="font-size:12px;color:#b0b0b0;margin-top:4px;">5D and 7D give the best balance of accuracy improvement + enough trades per month. '
-                '21D and 30D have highest accuracy but only 1 trade/month limits total P&L.</div>'
-                '</div>',
-                unsafe_allow_html=True
-            )
+                st.markdown(
+                    '<div style="background:#0d2818;border-radius:8px;padding:12px 14px;margin-top:8px;">'
+                    '<div style="font-size:13px;font-weight:500;color:#22c55e;">Best horizons for P&L</div>'
+                    '<div style="font-size:12px;color:#b0b0b0;margin-top:4px;">5D and 7D give the best balance of accuracy improvement + enough trades per month. '
+                    '21D and 30D have highest accuracy but only 1 trade/month limits total P&L.</div>'
+                    '</div>',
+                    unsafe_allow_html=True
+                )

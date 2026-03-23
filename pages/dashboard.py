@@ -150,12 +150,23 @@ def render():
     model_badge = "XGBoost v3.2" if has_model else "Not trained"
     data_status = "Live" if not nifty_df.empty else "Offline"
 
+    # Fix #3: Dynamic market open/closed badge
+    now = datetime.now()
+    weekday = now.weekday()  # 0=Mon, 6=Sun
+    hour, minute = now.hour, now.minute
+    time_val = hour * 60 + minute
+    market_open = weekday < 5 and 555 <= time_val <= 930  # 9:15 AM to 3:30 PM IST
+    if market_open:
+        market_badge = '<span style="background:#0d2818; color:#22c55e; padding:2px 10px; border-radius:10px; font-size:11px; border:1px solid #1a5c36;">🟢 Market Open</span>'
+    else:
+        market_badge = '<span style="background:#1a0d0d; color:#ef4444; padding:2px 10px; border-radius:10px; font-size:11px; border:1px solid #5c1a1a;">🔴 Market Closed</span>'
+
     st.markdown(f"""
     <div class="top-bar">
         <div style="display:flex; align-items:center;">
             <span style="font-weight:700; font-size:16px; margin-right:20px;">Nifty Intelligence System</span>
             <span class="status-item">{now_str} • Data: <span style="color:#22c55e;">{data_status}</span></span>
-            <span style="background:#0d2818; color:#22c55e; padding:2px 10px; border-radius:10px; font-size:11px; border:1px solid #1a5c36;">Market Open</span>
+            {market_badge}
         </div>
         <div style="display:flex; gap:10px;">
             <div style="background:#1e2130; padding:4px 12px; border-radius:20px; border:1px solid #3b82f633; font-size:12px;">
@@ -178,13 +189,13 @@ def render():
     conf_source = "Model" if has_model else "Default"
     dir_color = "#22c55e" if direction == "UP" else "#ef4444"
 
-    # Signal bar color based on action
+    # Fix #8: Signal bar color — GREEN for buy, AMBER for spread, RED for no-trade
     if sig["action"] == "NO_TRADE":
         bar_bg, bar_border, title_color = "#1a0d0d", "#5c1a1a", "#ef4444"
     elif sig["action"] in ("BUY_CALL", "BUY_PUT"):
         bar_bg, bar_border, title_color = "#0d2818", "#1a5c36", "#22c55e"
-    else:
-        bar_bg, bar_border, title_color = "#0d2818", "#1a5c36", "#22c55e"
+    else:  # Credit spreads
+        bar_bg, bar_border, title_color = "#1a1200", "#5c4200", "#f59e0b"
 
     # Build signal details depending on action
     if sig["action"] != "NO_TRADE":
@@ -294,10 +305,8 @@ def render():
                 except Exception:
                     pass
         else:
-            # Fallback: mock signal points
-            if len(last_60) >= 46:
-                buy_pts = last_60.iloc[[10, 25, 45]]
-                fig_nifty.add_trace(go.Scatter(x=buy_pts.index, y=buy_pts['Close'], mode='markers', name='Buy signal', marker=dict(symbol='triangle-up', size=10, color='#22c55e')))
+            # Fix #4: No fake signals — show informational note instead
+            pass  # No model trained: don't show fabricated buy signals
 
         fig_nifty.update_layout(
             paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',

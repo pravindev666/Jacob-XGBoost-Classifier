@@ -140,6 +140,7 @@ st.markdown("""
 with st.sidebar:
     st.markdown("## 📈 Nifty Intel")
     st.markdown("**Professional Grade Trading System**")
+    st.markdown('<div style="font-size:11px;color:#888;margin-top:-5px;margin-bottom:10px;">Your AI-powered guide to smarter Nifty options trading</div>', unsafe_allow_html=True)
     st.markdown("---")
 
     page = st.radio(
@@ -157,31 +158,60 @@ with st.sidebar:
         label_visibility="collapsed",
     )
 
-    st.markdown("---")
-    st.caption(f"v3.2.0 • {datetime.now().strftime('%d %b %Y %H:%M')}")
+    # Kid-friendly page descriptions
+    page_tips = {
+        "🏠": "📍 Your home screen — see today's signal, charts, and live data at a glance.",
+        "🔭": "🔍 7 AI models vote on market direction across different timeframes.",
+        "📂": "📁 Explore your raw data files and check if everything is loaded correctly.",
+        "🎯": "🎯 Enter your model's prediction and get the exact trade to execute.",
+        "📊": "🎲 Simulate thousands of trading scenarios to understand your edge.",
+        "🤖": "🧠 Train the AI model on your data — this is where the magic happens.",
+        "📓": "📝 Log every trade you make and track your performance over time.",
+        "📚": "📖 Learn how each strategy works with interactive payoff diagrams.",
+    }
+    for emoji, tip in page_tips.items():
+        if emoji in page:
+            st.markdown(f'<div style="font-size:11px;color:#888;margin-top:5px;padding:6px 8px;background:#1e2130;border-radius:6px;">{tip}</div>', unsafe_allow_html=True)
+            break
 
-# ── Page Router ─────────────────────────────────────────────────────────────
+    st.markdown("---")
+    st.caption(f"v3.3.0 • {datetime.now().strftime('%d %b %Y %H:%M')}")
+
+# ── Page Router with Error Boundaries ────────────────────────────────────────
+def _safe_render(page_module, page_name):
+    """Render a page with error boundary — a crash in one page won't kill the app."""
+    try:
+        page_module.render()
+    except Exception as e:
+        st.error(f"⚠️ **{page_name}** encountered an error:")
+        st.code(str(e))
+        st.info("💡 Try refreshing the page, or check if your data files are in the `data/` folder.")
+        import traceback
+        with st.expander("Full error details", expanded=False):
+            st.code(traceback.format_exc())
+
 if "🏠" in page:
     from pages import dashboard
-    dashboard.render()
+    _safe_render(dashboard, "Dashboard")
 elif "🔭" in page:
     from pages import multi_horizon
-    multi_horizon.render()
+    _safe_render(multi_horizon, "Multi-Horizon")
 elif "📂" in page:
     from pages import data_explorer
-    data_explorer.render()
+    _safe_render(data_explorer, "Data Explorer")
 elif "🎯" in page:
     from pages import signal_engine
-    signal_engine.render()
+    _safe_render(signal_engine, "Signal Engine")
 elif "📊" in page:
     from pages import pnl_simulator
-    pnl_simulator.render()
+    _safe_render(pnl_simulator, "P&L Simulator")
 elif "🤖" in page:
     from pages import model_builder
-    model_builder.render()
+    _safe_render(model_builder, "Model Builder")
 elif "📓" in page:
     from pages import trade_journal
-    trade_journal.render()
+    _safe_render(trade_journal, "Trade Journal")
 elif "📚" in page:
     from pages import strategy_guide
-    strategy_guide.render()
+    _safe_render(strategy_guide, "Strategy Guide")
+

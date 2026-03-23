@@ -16,6 +16,14 @@ CARD_BG = "#1a1d2e"
 def render():
     st.markdown("## 🤖 Model Builder")
     st.markdown("Train a **real XGBoost model** on your actual Nifty + VIX + PCR + FII data.")
+    st.markdown(
+        '<div style="background:#1a1d2e;border:1px solid #2a2d3e;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#b0b0b0;">'
+        '💡 <b style="color:#e0e0e0;">What is the Model Builder?</b> This is where you teach the AI how to think. '
+        'We feed it 10 years of market data (the CSV files) so it learns the patterns. '
+        'Once trained, the AI is ready to predict what happens tomorrow!'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     tab1, tab2, tab3, tab4 = st.tabs([
         "📐 Feature Engineering",
@@ -100,7 +108,7 @@ def render():
             prog = st.progress(0, "Loading datasets...")
             try:
                 master   = build_master_dataset()
-                featured = engineer_all_features(master, dropna=False)
+                featured = engineer_all_features(master, dropna=True)
                 prog.progress(30, f"Loaded {len(featured):,} samples")
             except Exception as e:
                 st.error(f"Error: {e}")

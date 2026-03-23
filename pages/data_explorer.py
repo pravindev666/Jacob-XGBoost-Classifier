@@ -23,6 +23,14 @@ CARD_BG = "#1a1d2e"
 def render():
     st.markdown("## 📂 Data Explorer")
     st.markdown("Inspect your real CSV datasets, check data quality, and preview engineered features.")
+    st.markdown(
+        '<div style="background:#1a1d2e;border:1px solid #2a2d3e;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#b0b0b0;">'
+        '💡 <b style="color:#e0e0e0;">What is this data?</b> The AI needs information to make decisions. '
+        'These tables are like the AI\'s textbooks. We have data on prices (Nifty), fear levels (VIX), and what big investors are doing (FII/DII). '
+        'We mash it all together into one big "Master Dataset" for the AI to study.'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     # ── Data status ──────────────────────────────────────────────────────────
     st.markdown("### Dataset Status")
@@ -270,7 +278,7 @@ def render():
         if st.button("🔧 Build Master Dataset + Engineer Features", type="primary"):
             with st.spinner("Loading CSVs, merging, engineering 55+ features..."):
                 master = build_master_dataset()
-                featured = engineer_all_features(master)
+                featured = engineer_all_features(master, dropna=False)
 
             st.success(f"✅ Master dataset: **{len(featured):,} rows × {len(featured.columns)} columns**")
 

@@ -29,6 +29,14 @@ def run_simulation(capital, win_rate, months, trades_per_month,
 def render():
     st.markdown("## 📊 P&L Simulator")
     st.markdown("Monte Carlo simulation of your trading system's performance over time.")
+    st.markdown(
+        '<div style="background:#1a1d2e;border:1px solid #2a2d3e;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#b0b0b0;">'
+        '💡 <b style="color:#e0e0e0;">What is a simulator?</b> It\'s like a time machine that plays out thousands of possible futures! '
+        'You put in your win rate, and it rolls the dice 5,000 times to show you exactly how much money you can expect to make '
+        '(or lose) over the next year. It proves that a 60% win rate is all you need to win big.'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     # ── Parameters ────────────────────────────────────────────────────────────
     with st.expander("⚙️ Simulation Parameters", expanded=True):

@@ -76,6 +76,14 @@ def payoff_chart(spots, pnls, title, nifty=22000):
 def render():
     st.markdown("## 📚 Strategy Guide")
     st.markdown("Complete reference for all four strategies in your system.")
+    st.markdown(
+        '<div style="background:#1a1d2e;border:1px solid #2a2d3e;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#b0b0b0;">'
+        '💡 <b style="color:#e0e0e0;">What is a strategy?</b> Think of strategies like tools in a toolbox. '
+        'Sometimes you need a hammer (Buy Options), and sometimes you need a screwdriver (Credit Spreads). '
+        'This page shows you how each tool works and exactly when to use it.'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     nifty = st.session_state.get("global_nifty", 22000)
     spots = list(range(int(nifty * 0.88), int(nifty * 1.12), int(nifty * 0.002)))

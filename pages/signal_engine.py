@@ -11,6 +11,14 @@ CARD_BG = "#1a1d2e"
 def render():
     st.markdown("## 🎯 Signal Engine")
     st.markdown("Enter your model's prediction and market conditions to get the optimal trade.")
+    st.markdown(
+        '<div style="background:#1a1d2e;border:1px solid #2a2d3e;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#b0b0b0;">'
+        '💡 <b style="color:#e0e0e0;">What is the Signal Engine?</b> After the AI predicts UP or DOWN, '
+        'we need to know exactly *how* to trade it. Depending on the AI\'s confidence and market fear (VIX), '
+        'this page will tell you the exact buttons to press on your broker app.'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     # Pull live values from data if available
     import utils.data_loader as data_loader
@@ -106,7 +114,7 @@ def render():
             st.markdown("---")
             st.markdown("#### Scenario Analysis")
             df_scenarios = pd.DataFrame(setup["scenarios"])
-            df_styled = df_scenarios.style.applymap(
+            df_styled = df_scenarios.style.map(
                 lambda v: "color: #22c55e" if isinstance(v, str) and "+" in v
                 else ("color: #ef4444" if isinstance(v, str) and "-" in v else ""),
                 subset=["P&L"]
