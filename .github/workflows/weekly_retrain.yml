@@ -1,0 +1,49 @@
+name: Weekly Model Retrain
+
+on:
+  schedule:
+    # Sunday 23:30 UTC = Monday 5:00 AM IST
+    - cron: "30 23 * * 0"
+
+  workflow_dispatch:    # Manual trigger
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    permissions:
+      contents: write
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pandas numpy scikit-learn xgboost pytz
+
+      - name: Retrain model and save metrics
+        run: python scripts/retrain_and_save_metrics.py
+
+      - name: Commit metrics
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/model_metrics.json
+          if git diff --staged --quiet; then
+            echo "No change in metrics"
+          else
+            git commit -m "model: weekly retrain $(date +%Y-%m-%d) [skip ci]"
+            git push
+          fi

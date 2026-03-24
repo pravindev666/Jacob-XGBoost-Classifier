@@ -1,0 +1,93 @@
+name: Daily Market Data Update
+
+on:
+  schedule:
+    # 13:00 UTC = 6:30 PM IST (30 min after NSE closes)
+    - cron: "0 13 * * 1-5"   # Monday–Friday only
+
+  workflow_dispatch:          # Allow manual trigger from GitHub UI
+    inputs:
+      force_full_refresh:
+        description: "Force re-download everything (yes/no)"
+        required: false
+        default: "no"
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: write           # Needed to push CSV changes back to repo
+
+    steps:
+
+      # ── 1. Checkout repo ──────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Set up Python ─────────────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      # ── 3. Install dependencies ───────────────────────────────────────────
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install \
+            yfinance==0.2.38 \
+            pandas==2.2.0 \
+            numpy==1.26.4 \
+            requests==2.31.0 \
+            nsepy==0.8 \
+            jugaad-data==0.26 \
+            pytz==2024.1
+
+      # ── 4. Run data fetch script ──────────────────────────────────────────
+      - name: Fetch and append latest market data
+        env:
+          FORCE_FULL_REFRESH: ${{ github.event.inputs.force_full_refresh || 'no' }}
+        run: |
+          python scripts/fetch_and_append.py
+
+      # ── 5. Show what changed ─────────────────────────────────────────────
+      - name: Show changed files
+        run: |
+          git diff --stat data/
+          echo "---"
+          echo "Rows added per file:"
+          python scripts/show_row_counts.py
+
+      # ── 6. Commit and push if data changed ───────────────────────────────
+      - name: Commit and push updated CSVs
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add data/*.csv
+
+          # Only commit if something actually changed
+          if git diff --staged --quiet; then
+            echo "No new data today — already up to date"
+          else
+            TODAY=$(TZ='Asia/Kolkata' date '+%Y-%m-%d')
+            git commit -m "data: auto-update ${TODAY} [skip ci]"
+            git push
+            echo "Data pushed successfully"
+          fi
+
+      # ── 7. Notify on failure (optional — needs SLACK_WEBHOOK secret) ──────
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "Data update FAILED on $(date)"
+          # Uncomment below if you have a Slack webhook set up:
+          # curl -X POST ${{ secrets.SLACK_WEBHOOK }} \
+          #   -H 'Content-type: application/json' \
+          #   -d '{"text":"⚠️ Nifty Intel data update failed! Check GitHub Actions."}'
