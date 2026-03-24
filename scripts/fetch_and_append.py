@@ -367,7 +367,15 @@ def fetch_vix_term() -> pd.DataFrame:
         if near.empty:
             return pd.DataFrame()
 
-        near_close = float(near["Close"].iloc[-1])
+        if isinstance(near.columns, pd.MultiIndex):
+            near.columns = [c[0] for c in near.columns]
+
+        # Extract scalar value
+        if isinstance(near["Close"], pd.Series):
+            near_close = float(near["Close"].iloc[-1])
+        else:
+            near_close = float(near["Close"].iloc[-1, 0])
+            
         today_date = datetime.now(IST).date()
 
         # Try to get far month VIX proxy (VIX1D or use 30-day estimate)
@@ -457,6 +465,11 @@ new_events = fetch_nse_holidays()
 if not new_events.empty:
     # For events, we merge by date+type (not just date)
     if not existing.empty:
+        if "Date" in existing.columns:
+            existing["Date"] = pd.to_datetime(existing["Date"]).dt.date
+        if "Date" in new_events.columns:
+            new_events["Date"] = pd.to_datetime(new_events["Date"]).dt.date
+            
         combined = pd.concat([existing, new_events], ignore_index=True)
         combined = combined.drop_duplicates(subset=["Date", "Type"], keep="last")
         combined = combined.sort_values("Date").reset_index(drop=True)
