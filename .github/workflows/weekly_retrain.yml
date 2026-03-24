@@ -45,5 +45,6 @@ jobs:
             echo "No change in metrics"
           else
             git commit -m "model: weekly retrain $(date +%Y-%m-%d) [skip ci]"
-            git push
+            git pull --rebase origin main
+            git push origin main
           fi

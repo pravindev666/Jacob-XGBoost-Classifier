@@ -78,7 +78,8 @@ jobs:
           else
             TODAY=$(TZ='Asia/Kolkata' date '+%Y-%m-%d')
             git commit -m "data: auto-update ${TODAY} [skip ci]"
-            git push
+            git pull --rebase origin main
+            git push origin main
             echo "Data pushed successfully"
           fi
 
