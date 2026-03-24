@@ -47,6 +47,15 @@ def load_existing(filename: str) -> pd.DataFrame:
         print(f"  [NEW FILE] {filename} will be created")
         return pd.DataFrame()
     df = pd.read_csv(path)
+    
+    # Standardise OHLCV column casing to match yfinance output
+    renames = {}
+    for c in df.columns:
+        if c.lower() in ["date", "open", "high", "low", "close", "volume"]:
+            renames[c] = c.strip().title()
+        elif c.lower() == "vix":
+            renames[c] = "VIX"
+    df.rename(columns=renames, inplace=True)
     return df
 
 

@@ -28,10 +28,23 @@ def load_csv(fname, date_col="Date"):
     if not os.path.exists(path):
         return pd.DataFrame()
     df = pd.read_csv(path)
-    if date_col in df.columns:
-        df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
-        df = df.dropna(subset=[date_col])
-        df = df.set_index(date_col).sort_index()
+    
+    # Standardise OHLCV column casing
+    renames = {}
+    for c in df.columns:
+        if c.lower() in ["date", "open", "high", "low", "close", "volume"]:
+            renames[c] = c.strip().title()
+        elif c.lower() in ["vix", "vix close", "india vix"]:
+            renames[c] = "VIX"
+    df.rename(columns=renames, inplace=True)
+    
+    # Use lowercase 'date' if 'Date' wasn't successfully renamed (failsafe)
+    actual_date_col = date_col if date_col in df.columns else "date" 
+    
+    if actual_date_col in df.columns:
+        df[actual_date_col] = pd.to_datetime(df[actual_date_col], errors="coerce")
+        df = df.dropna(subset=[actual_date_col])
+        df = df.set_index(actual_date_col).sort_index()
     return df
 
 nifty = load_csv("nifty_daily.csv")

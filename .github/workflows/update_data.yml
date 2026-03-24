@@ -45,8 +45,8 @@ jobs:
             pandas==2.2.0 \
             numpy==1.26.4 \
             requests==2.31.0 \
-            nsepy==0.8 \
-            jugaad-data==0.26 \
+            nsepy \
+            jugaad-data \
             pytz==2024.1
 
       # ── 4. Run data fetch script ──────────────────────────────────────────
