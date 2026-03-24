@@ -59,21 +59,21 @@ def load_existing(filename: str) -> pd.DataFrame:
     return df
 
 
-def get_last_date(df: pd.DataFrame, date_col: str = "Date") -> date | None:
-    """Return the most recent date in the existing CSV."""
+def get_last_date(df: pd.DataFrame, date_col: str = "Date") -> datetime | None:
+    """Return the most recent date/time in the existing CSV."""
     if df.empty or date_col not in df.columns:
         return None
     try:
-        return pd.to_datetime(df[date_col]).max().date()
+        return pd.to_datetime(df[date_col]).max()
     except Exception:
         return None
+
 
 
 def append_new_rows(existing: pd.DataFrame, new_data: pd.DataFrame,
                     date_col: str = "Date", filename: str = "") -> pd.DataFrame:
     """
-    Append only rows that are newer than the last date in existing data.
-    Deduplicates on date_col to prevent any double-counting.
+    Append only rows that are strictly newer than the last date/time in existing data.
     """
     if new_data.empty:
         print(f"  [SKIP] {filename} — no new data fetched")
@@ -84,37 +84,40 @@ def append_new_rows(existing: pd.DataFrame, new_data: pd.DataFrame,
         print(f"  [INIT] {filename} — {len(result)} rows written (first time)")
         return result
 
-    # Standardise date columns to proper datetime.date objects to avoid pandas TypeError string comparisons
-    if date_col in existing.columns:
-        existing[date_col] = pd.to_datetime(existing[date_col]).dt.date
-    if date_col in new_data.columns:
-        new_data[date_col] = pd.to_datetime(new_data[date_col]).dt.date
-
-    last_date = get_last_date(existing, date_col)
-    if last_date is None:
+    # Compare using full datetime to preserve 15-min timestamps
+    last_dt = get_last_date(existing, date_col)
+    if last_dt is None:
         return pd.concat([existing, new_data], ignore_index=True)
 
-    # Only keep rows strictly newer than the last existing date
-    new_data[date_col] = pd.to_datetime(new_data[date_col]).dt.date
-    mask = new_data[date_col] > last_date
+    # Only keep rows strictly newer than the last existing datetime
+    # We create a temporary parsed Series for comparison, preserving original strings
+    new_dt_parsed = pd.to_datetime(new_data[date_col])
+    mask = new_dt_parsed > last_dt
     truly_new = new_data[mask].copy()
 
     if truly_new.empty:
-        print(f"  [UP TO DATE] {filename} — already current (last: {last_date})")
+        print(f"  [SKIP] {filename} — up to date (last is {last_dt})")
         return existing
 
+    # Normalise both to strings to prevent sort type errors between str and date objects
+    existing[date_col] = existing[date_col].astype(str)
+    truly_new[date_col] = truly_new[date_col].astype(str)
+
     result = pd.concat([existing, truly_new], ignore_index=True)
+    
     # Final dedup just in case
     result = result.drop_duplicates(subset=[date_col], keep="last")
     result = result.sort_values(date_col).reset_index(drop=True)
-    print(f"  [UPDATED] {filename} — +{len(truly_new)} rows (last was {last_date}, now {truly_new[date_col].max()})")
+    print(f"  [UPDATED] {filename} — +{len(truly_new)} rows (last was {last_dt}, now {truly_new[date_col].max()})")
     return result
 
 
-def save_csv(df: pd.DataFrame, filename: str):
-    """Save DataFrame to CSV in data/ folder."""
-    path = os.path.join(DATA_DIR, filename)
-    os.makedirs(DATA_DIR, exist_ok=True)
+def save_csv(df: pd.DataFrame, name: str, date_col: str = "Date"):
+    """Save to CSV deduplicating on the specified date column."""
+    if df.empty:
+        return
+    path = os.path.join(DATA_DIR, name)
+    df = df.drop_duplicates(subset=[date_col], keep="last")
     df.to_csv(path, index=False)
 
 
@@ -383,11 +386,12 @@ def fetch_vix_term() -> pd.DataFrame:
         # Replace with actual futures data if you have a broker API
         far_close = near_close * 1.025  # 2.5% contango assumption
 
+        # The CSV expects lowercase column names (date,vix_near,vix_far)
+        # to match older data, which is parsed as Vix_Near and Vix_Far in data_loader.
         return pd.DataFrame([{
-            "Date": today_date,
-            "VIX_Near": round(near_close, 2),
-            "VIX_Far":  round(far_close, 2),
-            "Term_Spread": round(far_close - near_close, 2),
+            "date": today_date,
+            "vix_near": round(near_close, 2),
+            "vix_far":  round(far_close, 2),
         }])
     except Exception as e:
         print(f"    VIX term error: {e}")
@@ -395,8 +399,8 @@ def fetch_vix_term() -> pd.DataFrame:
 
 new_vterm = fetch_vix_term()
 if not new_vterm.empty:
-    result = append_new_rows(existing, new_vterm, "Date", "vix_term_daily.csv")
-    save_csv(result, "vix_term_daily.csv")
+    result = append_new_rows(existing, new_vterm, "date", "vix_term_daily.csv")
+    save_csv(result, "vix_term_daily.csv", date_col="date")
 print()
 
 

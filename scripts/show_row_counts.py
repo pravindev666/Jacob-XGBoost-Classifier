@@ -19,7 +19,7 @@ FILES = [
     ("sp500_daily.csv",                    "Date",  "S&P 500 Daily"),
     ("fii_dii_daily.csv",                  "Date",  "FII/DII Daily"),
     ("pcr_daily.csv",                      "Date",  "PCR Daily"),
-    ("vix_term_daily.csv",                 "Date",  "VIX Term Structure"),
+    ("vix_term_daily.csv",                 "date",  "VIX Term Structure"),
     ("events.csv",                         "Date",  "Events Calendar"),
 ]
 
