@@ -234,6 +234,16 @@ for hz, target_col in HORIZONS.items():
         "val_accuracy":  round(float(val_acc), 4),
         "test_accuracy": round(float(test_acc), 4),
     }
+    
+    # Save the actual model
+    model_subdir = os.path.join(DATA_DIR, "models")
+    os.makedirs(model_subdir, exist_ok=True)
+    model.save_model(os.path.join(model_subdir, f"model_{hz}.ubj"))
+
+# Save the scaler as well (crucial for prediction)
+import pickle
+with open(os.path.join(DATA_DIR, "models", "scaler.pkl"), "wb") as f_scaler:
+    pickle.dump(scaler, f_scaler)
 
 # Save metrics JSON (Streamlit can read this without retraining)
 metrics_path = os.path.join(DATA_DIR, "model_metrics.json")

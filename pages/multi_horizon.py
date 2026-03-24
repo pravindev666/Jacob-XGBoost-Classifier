@@ -37,7 +37,61 @@ def _get_conviction(probs: dict) -> dict:
     }
 
 
+def _load_pretrained_assets():
+    """Attempt to load models and metrics from the data/models folder."""
+    import os
+    import json
+    import pickle
+    import xgboost as xgb
+
+    # 1. Load Metrics JSON
+    metrics_path = os.path.join("data", "model_metrics.json")
+    if os.path.exists(metrics_path) and not st.session_state.get("mh_accuracies"):
+        try:
+            with open(metrics_path, "r") as f:
+                metrics = json.load(f)
+            
+            acc_results = {}
+            for hz, m in metrics.get("horizons", {}).items():
+                if hz in HORIZONS:
+                    acc_results[hz] = {
+                        "test_acc": m["test_accuracy"],
+                        "train_acc": m["val_accuracy"],
+                        "color": HORIZONS[hz]["color"]
+                    }
+            st.session_state["mh_accuracies"] = acc_results
+            st.session_state["mh_metadata"] = {
+                "updated_at": metrics.get("updated_at", "Unknown"),
+                "total_rows": metrics.get("total_rows", 0)
+            }
+        except Exception:
+            pass
+
+    # 2. Load Models and Scaler
+    models_dir = os.path.join("data", "models")
+    if os.path.exists(models_dir) and not st.session_state.get("mh_models"):
+        try:
+            trained_models = {}
+            for hz in HORIZONS.keys():
+                m_path = os.path.join(models_dir, f"model_{hz}.ubj")
+                if os.path.exists(m_path):
+                    model = xgb.XGBClassifier()
+                    model.load_model(m_path)
+                    trained_models[hz] = model
+            
+            scaler_path = os.path.join(models_dir, "scaler.pkl")
+            if os.path.exists(scaler_path) and trained_models:
+                with open(scaler_path, "rb") as f_s:
+                    scaler = pickle.load(f_s)
+                
+                st.session_state["mh_models"] = trained_models
+                st.session_state["mh_scaler"] = scaler
+        except Exception:
+            pass
+
+
 def render():
+    _load_pretrained_assets()
     st.markdown("## 📊 Multi-Horizon Intelligence")
     st.markdown("7 XGBoost models predict Nifty direction from 1 day to 30 days ahead — simultaneously.")
     st.markdown(
@@ -196,8 +250,13 @@ for hz, model in models.items():
             'that\'s 6/7 conviction = very strong signal. If only 4/7 agree, it\'s weak. '
             'Think of it like asking 7 weather apps — if most agree, you can trust it.'
             '</div>',
-            unsafe_allow_html=True
-        )
+                unsafe_allow_html=True
+            )
+
+        # Show automation status
+        meta = st.session_state.get("mh_metadata")
+        if meta:
+            st.caption(f"🤖 **Automation Sync:** Models retrained {meta['updated_at']} ({meta['total_rows']} rows)")
 
         if not models:
             st.warning("⚠️ Train the models first in the **Train All Horizons** tab.")
@@ -206,9 +265,22 @@ for hz, model in models.items():
             scaler      = st.session_state.get("mh_scaler")
             feat_cols   = st.session_state.get("mh_feat_cols")
 
-            if featured_df is None or scaler is None:
-                st.warning("No feature data found. Retrain models.")
-            else:
+            if (featured_df is None or scaler is None or feat_cols is None) and models:
+                # Load master dataset on the fly if not already in memory
+                # This ensures conviction panel works even if we just loaded models from disk
+                try:
+                    with st.spinner("Preparing live data for predictions..."):
+                        master = build_master_dataset()
+                        featured_df = engineer_all_features(master, dropna=False) # dropna=False to keep today's row
+                        st.session_state["mh_featured"] = featured_df
+                        st.session_state["mh_feat_cols"] = [c for c in featured_df.columns if not c.startswith("target") and c not in ["Open","High","Low","Close","Volume"]]
+                        # scaler is already in session state from _load_pretrained_assets
+                        scaler = st.session_state.get("mh_scaler")
+                        feat_cols = st.session_state["mh_feat_cols"]
+                except Exception as e:
+                    st.warning(f"Could not load live features: {e}")
+            
+            if featured_df is not None and models and scaler and feat_cols:
                 latest = featured_df[feat_cols].iloc[[-1]].fillna(0)
                 latest_s = pd.DataFrame(scaler.transform(latest), columns=feat_cols)
 

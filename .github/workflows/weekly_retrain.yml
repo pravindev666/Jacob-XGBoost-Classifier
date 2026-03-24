@@ -40,7 +40,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/model_metrics.json
+          git add data/model_metrics.json data/models/*.ubj data/models/scaler.pkl
           if git diff --staged --quiet; then
             echo "No change in metrics"
           else
