@@ -1,0 +1,46 @@
+{
+  "updated_at": "2026-03-24T18:53:27.796328Z",
+  "train_end": 2021,
+  "val_end": 2024,
+  "total_rows": 2693,
+  "train_rows": 1710,
+  "val_rows": 736,
+  "test_rows": 247,
+  "horizons": {
+    "1D": {
+      "target_col": "target",
+      "val_accuracy": 0.5584,
+      "test_accuracy": 0.5789
+    },
+    "3D": {
+      "target_col": "target_3d",
+      "val_accuracy": 0.5639,
+      "test_accuracy": 0.5182
+    },
+    "5D": {
+      "target_col": "target_5d",
+      "val_accuracy": 0.5788,
+      "test_accuracy": 0.5263
+    },
+    "7D": {
+      "target_col": "target_7d",
+      "val_accuracy": 0.6005,
+      "test_accuracy": 0.5385
+    },
+    "14D": {
+      "target_col": "target_14d",
+      "val_accuracy": 0.5611,
+      "test_accuracy": 0.5749
+    },
+    "21D": {
+      "target_col": "target_21d",
+      "val_accuracy": 0.5734,
+      "test_accuracy": 0.6397
+    },
+    "30D": {
+      "target_col": "target_30d",
+      "val_accuracy": 0.6046,
+      "test_accuracy": 0.6194
+    }
+  }
+}
