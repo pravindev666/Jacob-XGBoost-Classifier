@@ -41,13 +41,13 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install \
-            yfinance==0.2.38 \
-            pandas==2.2.0 \
-            numpy==1.26.4 \
-            requests==2.31.0 \
+            yfinance \
+            pandas \
+            numpy \
+            requests \
             nsepy \
             jugaad-data \
-            pytz==2024.1
+            pytz
 
       # ── 4. Run data fetch script ──────────────────────────────────────────
       - name: Fetch and append latest market data

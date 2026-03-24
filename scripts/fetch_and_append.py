@@ -84,6 +84,12 @@ def append_new_rows(existing: pd.DataFrame, new_data: pd.DataFrame,
         print(f"  [INIT] {filename} — {len(result)} rows written (first time)")
         return result
 
+    # Standardise date columns to proper datetime.date objects to avoid pandas TypeError string comparisons
+    if date_col in existing.columns:
+        existing[date_col] = pd.to_datetime(existing[date_col]).dt.date
+    if date_col in new_data.columns:
+        new_data[date_col] = pd.to_datetime(new_data[date_col]).dt.date
+
     last_date = get_last_date(existing, date_col)
     if last_date is None:
         return pd.concat([existing, new_data], ignore_index=True)
