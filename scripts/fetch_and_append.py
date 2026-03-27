@@ -389,7 +389,7 @@ def fetch_vix_term() -> pd.DataFrame:
         # The CSV expects lowercase column names (date,vix_near,vix_far)
         # to match older data, which is parsed as Vix_Near and Vix_Far in data_loader.
         return pd.DataFrame([{
-            "date": today_date,
+            "Date": today_date,
             "vix_near": round(near_close, 2),
             "vix_far":  round(far_close, 2),
         }])
@@ -399,8 +399,8 @@ def fetch_vix_term() -> pd.DataFrame:
 
 new_vterm = fetch_vix_term()
 if not new_vterm.empty:
-    result = append_new_rows(existing, new_vterm, "date", "vix_term_daily.csv")
-    save_csv(result, "vix_term_daily.csv", date_col="date")
+    result = append_new_rows(existing, new_vterm, "Date", "vix_term_daily.csv")
+    save_csv(result, "vix_term_daily.csv", date_col="Date")
 print()
 
 
