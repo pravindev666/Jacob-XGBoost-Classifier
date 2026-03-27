@@ -11,9 +11,9 @@ Date,label,type,impact,tip,Event,Type
 2026-03-21,,,,,Id-Ul-Fitr (Ramadan Eid),Holiday
 2026-03-24,Weekly Expiry,warn,MEDIUM,Options expire today.,,
 2026-03-26,,,,,Shri Ram Navami,Holiday
-2026-03-31,NSE: Shri Mahavir Jayanti,danger,HIGH,,,
+2026-03-31,,,,,Shri Mahavir Jayanti,Holiday
 2026-04-01,,,,,Annual Bank Closing,Holiday
-2026-04-03,NSE: Good Friday,danger,HIGH,,,
+2026-04-03,,,,,Good Friday,Holiday
 2026-04-07,Weekly Expiry,warn,MEDIUM,Options expire today.,,
 2026-04-09,RBI MPC,danger,HIGH,RBI MPC decision day.,,
 2026-04-14,,,,,Dr. Baba Saheb Ambedkar Jayanti,Holiday
@@ -34,7 +34,7 @@ Date,label,type,impact,tip,Event,Type
 2026-06-17,FOMC,warn,HIGH,FOMC decision day.,,
 2026-06-23,Weekly Expiry,warn,MEDIUM,Options expire today.,,
 2026-06-25,,,,,Monthly Expiry Jun 2026,Monthly_Expiry
-2026-06-26,NSE: Muharram,danger,HIGH,,,
+2026-06-26,,,,,Muharram,Holiday
 2026-06-30,Monthly Expiry,danger,HIGH,Avoid selling expiry week.,,
 2026-07-07,Weekly Expiry,warn,MEDIUM,Options expire today.,,
 2026-07-14,Weekly Expiry,warn,MEDIUM,Options expire today.,,
@@ -54,11 +54,11 @@ Date,label,type,impact,tip,Event,Type
 2026-09-15,Weekly Expiry,warn,MEDIUM,Options expire today.,,
 2026-09-24,,,,,Monthly Expiry Sep 2026,Monthly_Expiry
 2026-10-02,,,,,Mahatma Gandhi Jayanti,Holiday
-2026-10-20,NSE: Dussehra,danger,HIGH,,,
+2026-10-20,,,,,Dussehra,Holiday
 2026-10-29,,,,,Monthly Expiry Oct 2026,Monthly_Expiry
-2026-11-08,NSE: Diwali Laxmi Pujan*,danger,HIGH,,,
+2026-11-08,,,,,Diwali Laxmi Pujan*,Holiday
 2026-11-10,,,,,Diwali-Balipratipada,Holiday
 2026-11-24,,,,,Prakash Gurpurb Sri Guru Nanak Dev,Holiday
 2026-11-26,,,,,Monthly Expiry Nov 2026,Monthly_Expiry
-2026-12-25,NSE: Christmas,danger,HIGH,,,
+2026-12-25,,,,,Christmas,Holiday
 2026-12-31,,,,,Monthly Expiry Dec 2026,Monthly_Expiry
