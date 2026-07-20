@@ -26,7 +26,7 @@ Date,label,type,impact,tip,Event,Type
 2026-05-12,Weekly Expiry,warn,MEDIUM,Options expire today.,,
 2026-05-19,Weekly Expiry,warn,MEDIUM,Options expire today.,,
 2026-05-26,Monthly Expiry,danger,HIGH,Avoid selling expiry week.,,
-2026-05-28,,,,,Bakri Id,Holiday
+2026-05-28,,,,,Monthly Expiry May 2026,Monthly_Expiry
 2026-06-02,Weekly Expiry,warn,MEDIUM,Options expire today.,,
 2026-06-05,RBI MPC,danger,HIGH,RBI MPC decision day.,,
 2026-06-09,Weekly Expiry,warn,MEDIUM,Options expire today.,,
