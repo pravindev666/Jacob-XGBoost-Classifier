@@ -21,7 +21,7 @@ Date,label,type,impact,tip,Event,Type
 2026-04-28,Monthly Expiry,danger,HIGH,Avoid selling expiry week.,,
 2026-04-29,FOMC,warn,HIGH,FOMC decision day.,,
 2026-04-30,,,,,Monthly Expiry Apr 2026,Monthly_Expiry
-2026-05-01,,,,,Maharashtra Day,Holiday
+2026-05-01,,,,,Maharashtra Day / Buddha Pournima,Holiday
 2026-05-05,Weekly Expiry,warn,MEDIUM,Options expire today.,,
 2026-05-12,Weekly Expiry,warn,MEDIUM,Options expire today.,,
 2026-05-19,Weekly Expiry,warn,MEDIUM,Options expire today.,,
